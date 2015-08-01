@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE project>
+
+<!--
+	Redirect HTTP to HTTPS via Heroku's webapp-runner (this file exists specifically for it)
+	This approach was taken from an answer on StackOverflow: http://stackoverflow.com/a/13649976
+	Basically, because Heroku has to be a special snowflake, we need to adjust for their routing tier with three headers you see
+-->
+
+<Context>
+	<Valve className="org.apache.catalina.valves.RemoteIpValve"
+		remoteIpHeader="x-forwarded-for" protocolHeader="x-forwarded-proto"
+		portHeader="x-forwarded-port" />
+</Context>
