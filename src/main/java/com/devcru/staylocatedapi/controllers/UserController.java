@@ -26,7 +26,7 @@ import com.devcru.staylocatedapi.objects.User;
 
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
-@RequestMapping(value = "/users")
+@RequestMapping(value = "/users/*")
 public class UserController {
 	
 	UserDao ud;
