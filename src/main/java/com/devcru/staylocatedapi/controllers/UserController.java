@@ -26,7 +26,7 @@ import com.devcru.staylocatedapi.objects.User;
 
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
-@RequestMapping(value = "/*")
+@RequestMapping(value = "/users")
 public class UserController {
 	
 	UserDao ud;
@@ -40,14 +40,14 @@ public class UserController {
 	@Qualifier("dataSource")
 	public void setDataSource(DataSource ds) { this.template = new JdbcTemplate(ds); }
 	
-	@RequestMapping(value="/user", method=RequestMethod.GET)
+	@RequestMapping(value="/", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getListOfUsers() {
 		// get list of users... what should we return?  Entire user objects?
 		return new JsonResponse("OK", "");
 	}
 	
-	@RequestMapping(value="/user", method=RequestMethod.POST)
+	@RequestMapping(value="/", method=RequestMethod.POST)
 	// FIXME: headers="content-type=application/json" or produces="application/json"
 	public @ResponseBody
 	JsonResponse registerUser(@RequestBody User user) {
@@ -64,42 +64,42 @@ public class UserController {
 		return new JsonResponse("OK", message);
 	}
 	
-	@RequestMapping(value="/user/{uuid}", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getAccountDetails(@PathVariable ("uuid") String userUuid) {
 		// get user account details
 		return new JsonResponse("OK", "");
 	}
 	
-	@RequestMapping(value="/user/{uuid}", method=RequestMethod.DELETE)
+	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteUser(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		// remove user account
 		return new JsonResponse("OK", "");
 	}
 	
-	@RequestMapping(value="/user/{uuid}/profile", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}/profiles", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserProfile(@PathVariable ("uuid") String userUuid) {
 		// get user profile
 		return new JsonResponse("OK", "");
 	}
 	
-	@RequestMapping(value="/user/{uuid}/profile", method=RequestMethod.POST)
+	@RequestMapping(value="/{uuid}/profiles", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse replaceUserProfile(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		// update user profile
 		return new JsonResponse("OK", "");
 	}
 	
-	@RequestMapping(value="/user/{uuid}/contacts", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserContacts(@PathVariable ("uuid") String userUuid) {
 		// get list of user contactss
 		return new JsonResponse("OK", "");
 	}
 	
-	@RequestMapping(value="/user/{uuid}/contacts", method=RequestMethod.POST)
+	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse addContact(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		// add user contact
@@ -112,13 +112,13 @@ public class UserController {
 	// Does this mean profile and contacts will each have to be their own base URL?
 	
 	// ???: Is this method necessary with exclusive OAuth2?
-	@RequestMapping(value = "/login", method=RequestMethod.POST)
+	@RequestMapping(value = "/credentials", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse verifyCredentials(@RequestBody User user) {
 		
 		String message = "";
 		
-		if(ud.loginUser(user)) {
+		if(ud.verifyUserCreds(user)) {
 			message = "Login successful!";
 		} else {
 			message = "Login failed!";
@@ -130,7 +130,7 @@ public class UserController {
 	}
 	
 	// Test if URL context is set up properly
-	@RequestMapping(value = "/testget")
+	@RequestMapping(value = "/examples")
 	public @ResponseBody
 	String testGet() {
 		loggerForJay.info("hello info");

@@ -69,7 +69,7 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public boolean loginUser(User user) {
+	public boolean verifyUserCreds(User user) {
 		
 		boolean isSuccess = false;
 		

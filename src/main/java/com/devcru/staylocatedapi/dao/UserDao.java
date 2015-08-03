@@ -16,6 +16,6 @@ public interface UserDao {
 	 * feel as if abstracting even that away from OAuth2 via setting a
 	 * dataSource may nullify the need for a login endpoint.
 	 */
-	boolean loginUser(User user);
+	boolean verifyUserCreds(User user);
 
 }
