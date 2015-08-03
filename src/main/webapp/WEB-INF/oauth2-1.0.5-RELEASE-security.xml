@@ -31,13 +31,13 @@
 	</http>
     
 	<!-- Protected resources -->							<!-- !!!!!!!!!!!!!!!!!! CUSTOM !!!!!!!!!!!!!!!!!!!! -->
-	<http pattern="/users/**"
+	<http pattern="/**"
 	      create-session="never"
 	      entry-point-ref="oauthAuthenticationEntryPoint"
 	      access-decision-manager-ref="accessDecisionManager"
 	      xmlns="http://www.springframework.org/schema/security">
 	    <anonymous enabled="false"/>
-	    <intercept-url pattern="/users/**"
+	    <intercept-url pattern="/**"
 	                   access="ROLE_USER"/>
 	    <custom-filter ref="resourceServerFilter"
 	                   before="PRE_AUTH_FILTER"/>
