@@ -2,6 +2,7 @@ package com.devcru.staylocatedapi.dao.impl;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -48,7 +49,7 @@ public class UserDaoImpl implements UserDao {
 		sql = "INSERT INTO users (username, password_hash, password_salt)"
 				+ "VALUES ('" + username + "', '" + password + "', '" + salt + "')";
 		
-		if(userExists(username)) {
+		if(checkUserExists(username)) {
 			message = "Username exists! Doing nothing!";
 		} else {
 			message = "Username not found! Creating account!";
@@ -133,14 +134,21 @@ public class UserDaoImpl implements UserDao {
 	 * DAO Support query-methods
 	 */
 	
-	public boolean userExists(String username) {
+	public boolean checkUserExists(String username) {
+		
+		//boolean userExists = false;
 		
 		String sql = "SELECT * FROM users WHERE username = ?";
 		
-		List<String> results = 
-				template.query(sql,
-				new Object[]{username},
-				new BeanPropertyRowMapper<String>(String.class));
+		List<String> results = null;
+		try {
+			results = template.query(sql,
+			new Object[]{username},
+			new BeanPropertyRowMapper<String>(String.class));
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			return false;
+		}
 		
 		if(results.isEmpty()) {
 			System.out.println("Username not found!");

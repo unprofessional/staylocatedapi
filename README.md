@@ -69,3 +69,15 @@ Eclipse, Maven, and Heroku all seem to have different default classpaths.<br>
 - Heroku/webapp-runner: / (project root)
 
 This is important to know due to various dependencies and, as discovered, inclusion of properties files in the project
+
+### postgres on Heroku
+ postgreSQL version on Herku is 9.4
+ Note that a default installation of postgres does NOT come equipped with the features necessary to produce UUIDs (`uuid_generate_v4()`)
+ You will need to perform the following steps:
+ - Ensure the staylocatedapi app has been pushed and deployed to Heroku
+ - Heroku Toolbelt is installed (giving you access to the `heroku` command in command prompt)
+ - MS Command Prompt (in project directory):
+  - First ensure the database is up and running with `heroku pg:info`
+  - Then enter postgres SQL mode with `heroku pg:psql`
+  - `CREATE EXTENSION "uuid-ossp";`
+ - Create your tables as needed
