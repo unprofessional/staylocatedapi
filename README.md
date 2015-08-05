@@ -99,9 +99,9 @@ CREATE TABLE users
 )
 WITH (
   OIDS=FALSE
-);`
+);
 
-`-- Table: contacts
+-- Table: contacts
 
 -- DROP TABLE contacts;
 
@@ -114,9 +114,9 @@ CREATE TABLE contacts
 )
 WITH (
   OIDS=FALSE
-);`
+);
 
-`-- Table: contact_requests
+-- Table: contact_requests
 
 -- DROP TABLE contact_requests;
 
