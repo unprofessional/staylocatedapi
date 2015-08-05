@@ -71,7 +71,7 @@ Eclipse, Maven, and Heroku all seem to have different default classpaths.<br>
 This is important to know due to various dependencies and, as discovered, inclusion of properties files in the project
 
 ### postgres on Heroku
- postgreSQL version on Heroku is 9.4
+ postgreSQL version on Heroku is 9.4 --
  Note that a default installation of postgres does NOT come equipped with the features necessary to produce UUIDs (`uuid_generate_v4()`)
  You will need to perform the following steps:
  - Ensure the staylocatedapi app has been pushed and deployed to Heroku
@@ -80,4 +80,54 @@ This is important to know due to various dependencies and, as discovered, inclus
   - First ensure the database is up and running with `heroku pg:info`
   - Then enter postgres SQL mode with `heroku pg:psql`
   - `CREATE EXTENSION "uuid-ossp";`
- - Create your tables as needed
+ - Create your tables
+ 
+ ### postgres tables (work in progress, will include sql scripts as part of the project later)
+`-- Table: users
+
+-- DROP TABLE users;
+
+CREATE TABLE users
+(
+  uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
+  username character varying(16) NOT NULL,
+  email character varying(64),
+  password_hash character(32) NOT NULL,
+  password_salt character varying(16),
+  title character varying(64),
+  CONSTRAINT users_pkey PRIMARY KEY (uuid)
+)
+WITH (
+  OIDS=FALSE
+);`
+
+`-- Table: contacts
+
+-- DROP TABLE contacts;
+
+CREATE TABLE contacts
+(
+  requester_id uuid NOT NULL,
+  accepter_id uuid NOT NULL,
+  time_added timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT contacts_pkey PRIMARY KEY (requester_id, accepter_id)
+)
+WITH (
+  OIDS=FALSE
+);`
+
+`-- Table: contact_requests
+
+-- DROP TABLE contact_requests;
+
+CREATE TABLE contact_requests
+(
+  sender_id uuid NOT NULL,
+  recipient_id uuid NOT NULL,
+  status integer NOT NULL DEFAULT 0, -- 0 - Pending...
+  time_sent timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT contact_requests_pkey PRIMARY KEY (recipient_id, sender_id)
+)
+WITH (
+  OIDS=FALSE
+);`
