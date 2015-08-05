@@ -83,7 +83,9 @@ This is important to know due to various dependencies and, as discovered, inclus
  - Create your tables
  
 ### postgres tables (work in progress, will include sql scripts as part of the project later)
-`-- Table: users
+
+```
+-- Table: users
 
 -- DROP TABLE users;
 
@@ -130,4 +132,5 @@ CREATE TABLE contact_requests
 )
 WITH (
   OIDS=FALSE
-);`
+);
+```
