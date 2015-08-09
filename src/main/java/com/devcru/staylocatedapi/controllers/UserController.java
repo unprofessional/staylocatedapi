@@ -21,9 +21,6 @@ import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.JsonResponse;
 import com.devcru.staylocatedapi.objects.User;
 
-// XXX: Follow the REST API naming conventions (ex: app/noun/01234)
-// http://www.restapitutorial.com/lessons/restfulresourcenaming.html
-
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
 @RequestMapping(value = "/users/*")
@@ -43,8 +40,9 @@ public class UserController {
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getListOfUsers() {
+		System.out.println("getListOfUsers()");
 		// get list of users... what should we return?  Entire user objects?
-		return new JsonResponse("OK", "");
+		return new JsonResponse("OK", "getListOfUsers()");
 	}
 	
 	@RequestMapping(value="/", method=RequestMethod.POST)
@@ -67,43 +65,66 @@ public class UserController {
 	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getAccountDetails(@PathVariable ("uuid") String userUuid) {
+		System.out.println("getAccountDetails()");
 		// get user account details
-		return new JsonResponse("OK", "");
+		return new JsonResponse("OK", "getAccountDetails()");
 	}
 	
+	// TODO: Determine if User is necessary in all methods
 	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteUser(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
+		System.out.println("deleteUser()");
 		// remove user account
-		return new JsonResponse("OK", "");
+		return new JsonResponse("OK", "deleteUser()");
 	}
 	
-	@RequestMapping(value="/{uuid}/profiles", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserProfile(@PathVariable ("uuid") String userUuid) {
+		System.out.println("getUserProfile()");
 		// get user profile
-		return new JsonResponse("OK", "");
+		return new JsonResponse("OK", "getUserProfile()");
 	}
-	
-	@RequestMapping(value="/{uuid}/profiles", method=RequestMethod.POST)
+
+	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse replaceUserProfile(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
+	JsonResponse updateUserProfile(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
+		System.out.println("updateUserProfile()");
 		// update user profile
-		return new JsonResponse("OK", "");
+		return new JsonResponse("OK", "updateUserProfile()");
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserContacts(@PathVariable ("uuid") String userUuid) {
+		System.out.println("getUserContacts() -- list of contacts");
 		// get list of user contactss
-		return new JsonResponse("OK", "");
+		return new JsonResponse("OK", "getUserContacts()");
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
-	JsonResponse addContact(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
-		// add user contact
-		return new JsonResponse("OK", "");
+	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
+		System.out.println("addRequest() -- add contact request");
+		// add contact request
+		return new JsonResponse("OK", "addRequest()");
+	}
+	
+	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
+	public @ResponseBody
+	JsonResponse approveRequest(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
+		System.out.println("approveRequest() -- approve contact request");
+		// confirm contact request
+		return new JsonResponse("OK", "approveRequest()");
+	}
+	
+	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
+	public @ResponseBody
+	JsonResponse deleteContact(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
+		System.out.println("deleteContact() -- delete request or contact");
+		// delete request or contact
+		return new JsonResponse("OK", "deleteContact()");
 	}
 	
 	// TODO: Figure out how to add the delete Contacts method (due to two uuid variables)
