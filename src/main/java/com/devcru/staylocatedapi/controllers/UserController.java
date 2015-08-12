@@ -91,7 +91,8 @@ public class UserController {
 	public @ResponseBody
 	JsonResponse updateUserProfile(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("updateUserProfile()");
-		// update user profile
+		// update user profile (only if self)
+		// XXX: Do we change this to a root of profile for self???
 		return new JsonResponse("OK", "updateUserProfile()");
 	}
 	

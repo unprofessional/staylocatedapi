@@ -75,6 +75,18 @@
 	    </constructor-arg>
 	</bean>
 	
+	<bean class="java.net.URI" id="dbUrl">
+		<constructor-arg value="#{systemEnvironment['DATABASE_URL']}" />
+	</bean>
+
+	<bean class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		id="dataSource">
+		<property name="url"
+			value="#{ 'jdbc:postgresql://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }" />
+		<property name="username" value="#{ @dbUrl.getUserInfo().split(':')[0] }" />
+		<property name="password" value="#{ @dbUrl.getUserInfo().split(':')[1] }" />
+	</bean>
+	
 	<!-- Authentication in config file -->			<!-- !!!!!!!!!!!!!!!!!! CONSIDER EXTERNAL SOURCE SUCH AS DB OR LDAP [requires research] !!!!!!!!!!!!!!!!!!!! -->
 	<authentication-manager id="clientAuthenticationManager" xmlns="http://www.springframework.org/schema/security">
 	    <authentication-provider user-service-ref="clientDetailsUserService"/>
@@ -82,9 +94,15 @@
 	
 	<authentication-manager alias="authenticationManager" xmlns="http://www.springframework.org/schema/security">
 	    <authentication-provider>
-	        <user-service id="userDetailsService">											<!-- !!!!!!!!!!!!!!!!!! CUSTOM !!!!!!!!!!!!!!!!!!!! -->
-	            <user name="admin" password="password" authorities="ROLE_USER"/>		<!-- !!!!!!!!!!!!!!!!!! Change this !!!!!!!!!!!!!!!!!!!! -->
-	        </user-service>
+<!-- 	        <user-service id="userDetailsService">											!!!!!!!!!!!!!!!!!! CUSTOM !!!!!!!!!!!!!!!!!!!! -->
+<!-- 	            <user name="admin" password="password" authorities="ROLE_USER"/>		!!!!!!!!!!!!!!!!!! Change this !!!!!!!!!!!!!!!!!!!! -->
+<!-- 	        </user-service> -->
+			<jdbc-user-service data-source-ref="dataSource"
+				users-by-username-query=
+				"SELECT username, password_hash FROM users WHERE username = ?"
+				authorities-by-username-query=
+				"SELECT username, user_role FROM users WHERE username = ?"
+			/>
 	    </authentication-provider>
 	</authentication-manager>
 	
