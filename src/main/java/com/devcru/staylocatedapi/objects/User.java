@@ -13,8 +13,8 @@ public class User {
 	private String username = "";
 	private String email = "";
 	private String password = "";
-	private String passwordHash = "";
-	private String passwordSalt = "";
+	private String passwordHash = ""; // We don't need this thanks to BCrypto
+	private String passwordSalt = ""; // We don't need this thanks to BCrypto
 	private String firstName = "";
 	private String lastName = "";
 	

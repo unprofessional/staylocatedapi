@@ -13,7 +13,7 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
        
-       <!-- Just for testing... -->
+       <!-- Just for testing... taken from http://www.aurorasolutions.io/blog/how-to-oauth-2-0-with-spring-security-2/ -->
 	<http pattern="/oauth/cache_approvals" security="none"
 		xmlns="http://www.springframework.org/schema/security" />
 	<http pattern="/oauth/uncache_approvals" security="none"
@@ -30,7 +30,7 @@
 	    <access-denied-handler ref="oauthAccessDeniedHandler"/>
 	</http>
     
-	<!-- Protected resources -->							<!-- !!!!!!!!!!!!!!!!!! CUSTOM !!!!!!!!!!!!!!!!!!!! -->
+	<!-- Protected resources (Customizable) -->
 	<http pattern="/**"
 	      create-session="never"
 	      entry-point-ref="oauthAuthenticationEntryPoint"
@@ -75,31 +75,32 @@
 	    </constructor-arg>
 	</bean>
 	
-	<bean class="java.net.URI" id="dbUrl">
+	<bean id="dbUrl" class="java.net.URI">
 		<constructor-arg value="#{systemEnvironment['DATABASE_URL']}" />
 	</bean>
 
-	<bean class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-		id="dataSource">
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="url"
 			value="#{ 'jdbc:postgresql://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }" />
 		<property name="username" value="#{ @dbUrl.getUserInfo().split(':')[0] }" />
 		<property name="password" value="#{ @dbUrl.getUserInfo().split(':')[1] }" />
 	</bean>
 	
-	<!-- Authentication in config file -->			<!-- !!!!!!!!!!!!!!!!!! CONSIDER EXTERNAL SOURCE SUCH AS DB OR LDAP [requires research] !!!!!!!!!!!!!!!!!!!! -->
+	<!-- PASSWORD ENCODER (TEMPORARY UNTIL WE KNOW WE NEED IT) -->
+	<bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+	</bean>
+	
+	<!-- Authentication in config file -->
 	<authentication-manager id="clientAuthenticationManager" xmlns="http://www.springframework.org/schema/security">
 	    <authentication-provider user-service-ref="clientDetailsUserService"/>
 	</authentication-manager>
 	
 	<authentication-manager alias="authenticationManager" xmlns="http://www.springframework.org/schema/security">
 	    <authentication-provider>
-<!-- 	        <user-service id="userDetailsService">											!!!!!!!!!!!!!!!!!! CUSTOM !!!!!!!!!!!!!!!!!!!! -->
-<!-- 	            <user name="admin" password="password" authorities="ROLE_USER"/>		!!!!!!!!!!!!!!!!!! Change this !!!!!!!!!!!!!!!!!!!! -->
-<!-- 	        </user-service> -->
+	    	<password-encoder ref="encoder"/>
 			<jdbc-user-service data-source-ref="dataSource"
 				users-by-username-query=
-				"SELECT username, password_hash, true AS enabled FROM users WHERE username = ?"
+				"SELECT username, password, true AS enabled FROM users WHERE username = ?"
 				authorities-by-username-query=
 				"SELECT username, user_role FROM users WHERE username = ?"
 			/>
@@ -113,27 +114,14 @@
 	
 	<!-- Token Store -->
 	<bean id="tokenStore" class="org.springframework.security.oauth2.provider.token.InMemoryTokenStore"/>
-	<!-- <bean id="tokenStore" class="org.springframework.security.oauth2.provider.token.JdbcTokenStore">
-        <constructor-arg ref="jdbcTemplate" />
-	</bean>
-	
-	<bean id="jdbcTemplate"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-		<property name="url" value="jdbc:mysql://localhost:3306/oauthdb"/>
-		<property name="username" value="root"/>
-		<property name="password" value=""/>
-	</bean> -->
 	
 	<bean id="tokenServices" class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">
 	    <property name="tokenStore" ref="tokenStore"/>
 	    <property name="supportRefreshToken" value="true"/>
 	    <property name="clientDetailsService" ref="clientDetails"/>
-	    <!-- VIV -->
 	    <property name="accessTokenValiditySeconds" value="10"/>						<!-- !!!!!!!!!!!!!!!!!! Change this !!!!!!!!!!!!!!!!!!!! -->
 	</bean>
 	
-	<!-- This is screwing things up... TokenServicesUserApprovalHandler is missing from the jar -->
 	<bean id="userApprovalHandler"
 	      class="org.springframework.security.oauth2.provider.approval.TokenServicesUserApprovalHandler">
 	    <property name="tokenServices" ref="tokenServices"/>

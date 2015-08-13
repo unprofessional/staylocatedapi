@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.User;
-import com.devcru.staylocatedapi.utils.PasswordHash;
+//import com.devcru.staylocatedapi.utils.PasswordHash;
 
 public class UserDaoImpl implements UserDao {
 	
@@ -31,23 +33,16 @@ public class UserDaoImpl implements UserDao {
 		
 		String username = user.getUsername();
 		String password = user.getPassword();
-		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String hashedPassword = passwordEncoder.encode(password);
 		
-		String message = "", salt = null, sql = null;
+		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password + " | hashedPassword: " + hashedPassword);
 		
-		try {
-			password = PasswordHash.createHash(password);
-			String[] passwordData = password.split(":"); // 0 = iterations, 1 = salt, 2 = finished hash
-			salt = passwordData[1];
-			password = passwordData[2];
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-		}
+		String message = "", sql = null;
 		
-		System.out.println("username: " + username + " | password: " + password + " | salt: " + salt);
-		
-		sql = "INSERT INTO users (username, password_hash, password_salt)"
-				+ "VALUES ('" + username + "', '" + password + "', '" + salt + "')";
+		// password
+		sql = "INSERT INTO users (username, password)"
+				+ "VALUES ('" + username + "', '" + hashedPassword + "')";
 		
 		if(checkUserExists(username)) {
 			message = "Username exists! Doing nothing!";
@@ -68,55 +63,55 @@ public class UserDaoImpl implements UserDao {
 
 	}
 	
-	@Override
-	public boolean verifyUserCreds(User user) {
-		
-		boolean isSuccess = false;
-		
-		String username = user.getUsername();
-		String password = user.getPassword();
-		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
-		
-		String message = "", salt = null, sql = null;
-		
-		salt = getSalt(username);
-		System.out.println("salt: " + salt);
-		
-		try {
-			// Pass in salt-hex to custom method in PasswordHash
-			password = PasswordHash.createHashWithSalt(password, salt);
-			String[] passwordData = password.split(":"); // 0 = iterations, 1 = salt, 2 = finished hash
-			//salt = passwordData[1];
-			password = passwordData[2];
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println("username: " + username + " | password: " + password + " | salt: " + salt);
-		
-		sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
-		
-		List<String> results = null;
-		try {
-			results = template.query(sql,
-					new Object[]{username, password},
-					new BeanPropertyRowMapper<String>(String.class));
-			isSuccess = true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
-			isSuccess = false;
-		}
-		
-		if(results.isEmpty()) {
-			message = "Username or password not recognized!";
-		} else {
-			message = "Logged in successfully!";
-		}
-		
-		System.out.println("message: " + message);
-		
-		return isSuccess;
-	}
+//	@Override
+//	public boolean verifyUserCreds(User user) {
+//		
+//		boolean isSuccess = false;
+//		
+//		String username = user.getUsername();
+//		String password = user.getPassword();
+//		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
+//		
+//		String message = "", salt = null, sql = null;
+//		
+//		salt = getSalt(username);
+//		System.out.println("salt: " + salt);
+//		
+//		try {
+//			// Pass in salt-hex to custom method in PasswordHash
+//			password = PasswordHash.createHashWithSalt(password, salt);
+//			String[] passwordData = password.split(":"); // 0 = iterations, 1 = salt, 2 = finished hash
+//			//salt = passwordData[1];
+//			password = passwordData[2];
+//		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		System.out.println("username: " + username + " | password: " + password + " | salt: " + salt);
+//		
+//		sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
+//		
+//		List<String> results = null;
+//		try {
+//			results = template.query(sql,
+//					new Object[]{username, password},
+//					new BeanPropertyRowMapper<String>(String.class));
+//			isSuccess = true;
+//		} catch (DataAccessException e) {
+//			e.printStackTrace();
+//			isSuccess = false;
+//		}
+//		
+//		if(results.isEmpty()) {
+//			message = "Username or password not recognized!";
+//		} else {
+//			message = "Logged in successfully!";
+//		}
+//		
+//		System.out.println("message: " + message);
+//		
+//		return isSuccess;
+//	}
 	
 	@Override
 	public boolean updateUser(User user) {
