@@ -23,7 +23,7 @@ import com.devcru.staylocatedapi.objects.User;
 
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
-@RequestMapping(value = "/*")
+@RequestMapping(value = "/users/*")
 public class UserController {
 	
 	UserDao ud;
@@ -37,7 +37,7 @@ public class UserController {
 	@Qualifier("dataSource")
 	public void setDataSource(DataSource ds) { this.template = new JdbcTemplate(ds); }
 	
-	@RequestMapping(value="/users", method=RequestMethod.GET)
+	@RequestMapping(value="/", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getListOfUsers() {
 		System.out.println("getListOfUsers()");
@@ -45,7 +45,7 @@ public class UserController {
 		return new JsonResponse("OK", "getListOfUsers()");
 	}
 	
-	@RequestMapping(value="/users", method=RequestMethod.POST)
+	@RequestMapping(value="/", method=RequestMethod.POST)
 	// FIXME: headers="content-type=application/json" or produces="application/json"
 	public @ResponseBody
 	JsonResponse registerUser(@RequestBody User user) {
@@ -62,7 +62,7 @@ public class UserController {
 		return new JsonResponse("OK", message);
 	}
 	
-	@RequestMapping(value="/users/{uuid}", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getAccountDetails(@PathVariable ("uuid") String userUuid) {
 		System.out.println("getAccountDetails()");
@@ -71,7 +71,7 @@ public class UserController {
 	}
 	
 	// TODO: Determine if User is necessary in all methods
-	@RequestMapping(value="/users/{uuid}", method=RequestMethod.DELETE)
+	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteUser(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("deleteUser()");
@@ -79,7 +79,7 @@ public class UserController {
 		return new JsonResponse("OK", "deleteUser()");
 	}
 	
-	@RequestMapping(value="/users/{uuid}/profile", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserProfile(@PathVariable ("uuid") String userUuid) {
 		System.out.println("getUserProfile()");
@@ -87,7 +87,7 @@ public class UserController {
 		return new JsonResponse("OK", "getUserProfile()");
 	}
 
-	@RequestMapping(value="/users/{uuid}/profile", method=RequestMethod.PUT)
+	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.PUT)
 	public @ResponseBody
 	JsonResponse updateUserProfile(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("updateUserProfile()");
@@ -96,7 +96,7 @@ public class UserController {
 		return new JsonResponse("OK", "updateUserProfile()");
 	}
 	
-	@RequestMapping(value="/users/{uuid}/contacts", method=RequestMethod.GET)
+	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserContacts(@PathVariable ("uuid") String userUuid) {
 		System.out.println("getUserContacts() -- list of contacts");
@@ -104,7 +104,7 @@ public class UserController {
 		return new JsonResponse("OK", "getUserContacts()");
 	}
 	
-	@RequestMapping(value="/users/{uuid}/contacts", method=RequestMethod.POST)
+	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("addRequest() -- add contact request");
@@ -112,7 +112,7 @@ public class UserController {
 		return new JsonResponse("OK", "addRequest()");
 	}
 	
-	@RequestMapping(value="/users/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
+	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
 	public @ResponseBody
 	JsonResponse approveRequest(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
 		System.out.println("approveRequest() -- approve contact request");
@@ -120,7 +120,7 @@ public class UserController {
 		return new JsonResponse("OK", "approveRequest()");
 	}
 	
-	@RequestMapping(value="/users/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
+	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteContact(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
 		System.out.println("deleteContact() -- delete request or contact");
@@ -134,7 +134,7 @@ public class UserController {
 	// Does this mean profile and contacts will each have to be their own base URL?
 	
 	// ???: Is this method necessary with exclusive OAuth2?
-	@RequestMapping(value = "/users/credentials", method=RequestMethod.POST)
+	@RequestMapping(value = "/credentials", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse verifyCredentials(@RequestBody User user) {
 		
