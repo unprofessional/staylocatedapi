@@ -32,13 +32,8 @@
     
 	<!-- Protected resources (Customizable) -->
 	<http pattern="/users/" create-session="never"
-		entry-point-ref="oauthAuthenticationEntryPoint"
-		access-decision-manager-ref="accessDecisionManager"
+		security="none"
 		xmlns="http://www.springframework.org/schema/security">
-		<anonymous enabled="true" />
-		<intercept-url pattern="/users/" access="ROLE_USER" />
-		<custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
-		<access-denied-handler ref="oauthAccessDeniedHandler" />
 	</http>
 	
 	<http pattern="/users/**" create-session="never"
