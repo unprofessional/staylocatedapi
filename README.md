@@ -149,4 +149,4 @@ Originally, a Java class was implemented that made use of PBKFD2 to hash and Sec
 
 Then it was discovered that Spring Security 3.0+ has built in passwordEncoder support, including a much more streamlined algorithm, BCrypt, which basically strings everything together in a single string, no longer necessitating a separate password_salt column.
 
-Furthermore, while not currently implemented, it is possible to encrypt passwords on the database level (http://stackoverflow.com/questions/2647158/how-can-i-hash-passwords-in-postgresql).
+Furthermore, while not currently implemented, it is possible to encrypt passwords on the database level (http://www.postgresql.org/docs/8.3/static/pgcrypto.html & http://stackoverflow.com/questions/2647158/how-can-i-hash-passwords-in-postgresql).
