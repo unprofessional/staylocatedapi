@@ -143,3 +143,10 @@ WITH (
 	The refresh_token will be different, of course, but this is what you send in order to receive the access_token in order to access the API resource
 
 3) https://staylocatedapi.herokuapp.com/users/examples?access_token=xxxxx
+
+### Password Hashing+Salt
+Originally, a Java class was implemented that made use of PBKFD2 to hash and SecureRandom to generate the salt with the salt stored in a separate column in the user table (https://crackstation.net/hashing-security.htm).
+
+Then it was discovered that Spring Security 3.0+ has built in passwordEncoder support, including a much more streamlined algorithm, BCrypt, which basically strings everything together in a single string, no longer necessitating a separate password_salt column.
+
+Furthermore, while not currently implemented, it is possible to encrypt passwords on the database level (http://stackoverflow.com/questions/2647158/how-can-i-hash-passwords-in-postgresql).
