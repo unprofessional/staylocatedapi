@@ -1,8 +1,5 @@
 package com.devcru.staylocatedapi.dao.impl;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -17,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.User;
-//import com.devcru.staylocatedapi.utils.PasswordHash;
 
 public class UserDaoImpl implements UserDao {
 	

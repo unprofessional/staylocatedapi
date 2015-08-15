@@ -1,20 +1,11 @@
 package com.devcru.staylocatedapi.objects;
 
-/*
- * This is even necessary?  We can pass the values directly, but perhaps there
- * is some kind of encapsulation justification for using a User object instead
- * 
- * Most likely, for the sake of a DAO
- */
-
 public class User {
 	
 	private String uuid = "";
 	private String username = "";
 	private String email = "";
 	private String password = "";
-	private String passwordHash = ""; // We don't need this thanks to BCrypto
-	private String passwordSalt = ""; // We don't need this thanks to BCrypto
 	private String firstName = "";
 	private String lastName = "";
 	
@@ -36,18 +27,6 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getPasswordHash() {
-		return passwordHash;
-	}
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
-	public String getPasswordSalt() {
-		return passwordSalt;
-	}
-	public void setPasswordSalt(String passwordSalt) {
-		this.passwordSalt = passwordSalt;
-	}
 	public String getFirstName() {
 		return firstName;
 	}
@@ -66,7 +45,5 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	
 
 }
