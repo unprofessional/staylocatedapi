@@ -94,9 +94,9 @@ CREATE TABLE users
   uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
   username character varying(16) NOT NULL,
   email character varying(64),
-  password_hash character(32) NOT NULL,
-  password_salt character varying(16),
   title character varying(64),
+  user_role character varying(16) NOT NULL DEFAULT 'ROLE_USER'::character varying,
+  password character varying(64) NOT NULL,
   CONSTRAINT users_pkey PRIMARY KEY (uuid)
 )
 WITH (
@@ -134,3 +134,12 @@ WITH (
   OIDS=FALSE
 );
 ```
+
+### OAuth Implicit Grant process steps
+
+1) https://staylocatedapi.herokuapp.com/oauth/token?grant_type=password&client_id=my-trusted-client&username=regular&password=1234567890
+
+2) https://staylocatedapi.herokuapp.com/oauth/token?client_id=my-trusted-client&grant_type=refresh_token&refresh_token=xxxxx
+	The refresh_token will be different, of course, but this is what you send in order to receive the access_token in order to access the API resource
+
+3) https://staylocatedapi.herokuapp.com/users/examples?access_token=xxxxx
