@@ -65,21 +65,26 @@ public class UserDaoImpl implements UserDao {
 		// FIXME: This will need to independently manage the BCrypt solution being
 		// handled by Spring Security
 		
-		//boolean isSuccess = false;
-		
 		String username = user.getUsername();
 		String password = user.getPassword();
 		
 		// Decode password
-		
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		
 		String getPasswordSQL = "SELECT password FROM users WHERE username = ?";
 		
-		List<String> encodedPassword = template.query(getPasswordSQL,
+		List<String> encodedPassword = null;
+		
+		try {
+			encodedPassword = template.query(getPasswordSQL,
 				new Object[]{username},
 				new BeanPropertyRowMapper<String>(String.class)
 				);
+			
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			return false;
+		}
 		
 		for(int i = 0; i < encodedPassword.size(); i++) {
 			System.out.println("encodedPassword.get(i): " + encodedPassword.get(i));
@@ -93,33 +98,6 @@ public class UserDaoImpl implements UserDao {
 			return true;
 		} else return false;
 		
-		/*System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
-		
-		String message = "", sql = null;
-		
-		sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-		
-		List<String> results = null;
-		try {
-			results = template.query(sql,
-					new Object[]{username, password},
-					new BeanPropertyRowMapper<String>(String.class));
-		} catch (DataAccessException e) {
-			e.printStackTrace();
-			isSuccess = false;
-		}
-		
-		if(results.isEmpty()) {
-			message = "Username or password not recognized!";
-			isSuccess = false;
-		} else {
-			message = "Logged in successfully!";
-			isSuccess = true;
-		}
-		
-		System.out.println("message: " + message);
-		
-		return isSuccess;*/
 	}
 	
 	@Override
