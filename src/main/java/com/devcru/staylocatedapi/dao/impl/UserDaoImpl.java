@@ -75,6 +75,8 @@ public class UserDaoImpl implements UserDao {
 		
 		List<String> encodedPassword = null;
 		
+		System.out.println("username: " + username + " | password: " + password);
+		
 		try {
 			encodedPassword = template.query(getPasswordSQL,
 				new Object[]{username},
