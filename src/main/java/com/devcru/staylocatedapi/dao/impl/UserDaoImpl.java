@@ -81,7 +81,11 @@ public class UserDaoImpl implements UserDao {
 				new BeanPropertyRowMapper<String>(String.class)
 				);
 		
-		System.out.println("encodedPasword.get(0): " + encodedPassword.get(0));
+		for(int i = 0; i < encodedPassword.size(); i++) {
+			System.out.println("encodedPassword.get(i): " + encodedPassword.get(i));
+		}
+		
+		System.out.println("encodedPassword.get(0): " + encodedPassword.get(0));
 		
 		boolean passwordMatches = passwordEncoder.matches(password, encodedPassword.get(0));
 		
