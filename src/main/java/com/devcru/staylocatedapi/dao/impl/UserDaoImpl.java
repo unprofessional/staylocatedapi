@@ -59,55 +59,40 @@ public class UserDaoImpl implements UserDao {
 
 	}
 	
-//	@Override
-//	public boolean verifyUserCreds(User user) {
-//		
-//		boolean isSuccess = false;
-//		
-//		String username = user.getUsername();
-//		String password = user.getPassword();
-//		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
-//		
-//		String message = "", salt = null, sql = null;
-//		
-//		salt = getSalt(username);
-//		System.out.println("salt: " + salt);
-//		
-//		try {
-//			// Pass in salt-hex to custom method in PasswordHash
-//			password = PasswordHash.createHashWithSalt(password, salt);
-//			String[] passwordData = password.split(":"); // 0 = iterations, 1 = salt, 2 = finished hash
-//			//salt = passwordData[1];
-//			password = passwordData[2];
-//		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		System.out.println("username: " + username + " | password: " + password + " | salt: " + salt);
-//		
-//		sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
-//		
-//		List<String> results = null;
-//		try {
-//			results = template.query(sql,
-//					new Object[]{username, password},
-//					new BeanPropertyRowMapper<String>(String.class));
-//			isSuccess = true;
-//		} catch (DataAccessException e) {
-//			e.printStackTrace();
-//			isSuccess = false;
-//		}
-//		
-//		if(results.isEmpty()) {
-//			message = "Username or password not recognized!";
-//		} else {
-//			message = "Logged in successfully!";
-//		}
-//		
-//		System.out.println("message: " + message);
-//		
-//		return isSuccess;
-//	}
+	@Override
+	public boolean verifyUserCreds(User user) {
+		
+		boolean isSuccess = false;
+		
+		String username = user.getUsername();
+		String password = user.getPassword();
+		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
+		
+		String message = "", sql = null;
+		
+		sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+		
+		List<String> results = null;
+		try {
+			results = template.query(sql,
+					new Object[]{username, password},
+					new BeanPropertyRowMapper<String>(String.class));
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
+		
+		if(results.isEmpty()) {
+			message = "Username or password not recognized!";
+		} else {
+			message = "Logged in successfully!";
+		}
+		
+		System.out.println("message: " + message);
+		
+		return isSuccess;
+	}
 	
 	@Override
 	public boolean updateUser(User user) {

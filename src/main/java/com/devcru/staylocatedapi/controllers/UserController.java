@@ -140,11 +140,11 @@ public class UserController {
 		
 		String message = "";
 		
-//		if(ud.verifyUserCreds(user)) {
-//			message = "Login successful!";
-//		} else {
-//			message = "Login failed!";
-//		}
+		if(ud.verifyUserCreds(user)) {
+			message = "Login successful!";
+		} else {
+			message = "Login failed!";
+		}
 		
 		System.out.println("message: " + message);
 		
