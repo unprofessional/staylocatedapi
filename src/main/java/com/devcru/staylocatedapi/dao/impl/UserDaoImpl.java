@@ -80,19 +80,9 @@ public class UserDaoImpl implements UserDao {
 		
 		System.out.println("username: " + username + " | password: " + password);
 		
-//		try {
-//			encodedPassword = template.query(sql,
-//				new Object[]{username},
-//				new BeanPropertyRowMapper<String>(String.class)
-//				);
-//		} catch (DataAccessException e) {
-//			e.printStackTrace();
-//			return false;
-//		}
-		
 		try {
-			encodedPassword = template.query(sql, new RowMapper() {
-				public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+			encodedPassword = template.query(sql, new RowMapper<String>() {
+				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
 					return rs.getString(1);
 				}
 			});
