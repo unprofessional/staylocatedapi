@@ -91,8 +91,8 @@ public class UserDaoImpl implements UserDao {
 //		}
 		
 		try {
-			encodedPassword = template.query(sql, new RowMapper<String>() {
-				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+			encodedPassword = template.query(sql, new RowMapper() {
+				public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 					return rs.getString(1);
 				}
 			});
