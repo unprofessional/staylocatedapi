@@ -77,7 +77,6 @@ public class UserDaoImpl implements UserDao {
 			results = template.query(sql,
 					new Object[]{username, password},
 					new BeanPropertyRowMapper<String>(String.class));
-			isSuccess = true;
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			isSuccess = false;
@@ -85,8 +84,10 @@ public class UserDaoImpl implements UserDao {
 		
 		if(results.isEmpty()) {
 			message = "Username or password not recognized!";
+			isSuccess = false;
 		} else {
 			message = "Logged in successfully!";
+			isSuccess = true;
 		}
 		
 		System.out.println("message: " + message);
