@@ -1,5 +1,7 @@
 package com.devcru.staylocatedapi.dao.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -71,20 +74,39 @@ public class UserDaoImpl implements UserDao {
 		// Decode password
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		
-		String getPasswordSQL = "SELECT password FROM users WHERE username = ?";
+		String sql = "SELECT password FROM users WHERE username = ?";
 		
 		List<String> encodedPassword = null;
 		
 		System.out.println("username: " + username + " | password: " + password);
 		
+//		try {
+//			encodedPassword = template.query(sql,
+//				new Object[]{username},
+//				new BeanPropertyRowMapper<String>(String.class)
+//				);
+//		} catch (DataAccessException e) {
+//			e.printStackTrace();
+//			return false;
+//		}
+		
 		try {
-			encodedPassword = template.query(getPasswordSQL,
-				new Object[]{username},
-				new BeanPropertyRowMapper<String>(String.class)
-				);
-			
+			encodedPassword = template.query(sql, new RowMapper<String>() {
+				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+					return rs.getString(1);
+				}
+			});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
+			return false;
+		}
+		
+		if(encodedPassword.isEmpty()) {
+			return false;
+		} else if(encodedPassword.size() == 1) {
+			// Do nothing
+			System.out.println("GOOD: encodedPassword contains 1 element!");
+		} else {
 			return false;
 		}
 		
