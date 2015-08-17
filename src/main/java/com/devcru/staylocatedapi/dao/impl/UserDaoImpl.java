@@ -62,11 +62,34 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean verifyUserCreds(User user) {
 		
-		boolean isSuccess = false;
+		// FIXME: This will need to independently manage the BCrypt solution being
+		// handled by Spring Security
+		
+		//boolean isSuccess = false;
 		
 		String username = user.getUsername();
 		String password = user.getPassword();
-		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
+		
+		// Decode password
+		
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		
+		String getPasswordSQL = "SELECT password FROM users WHERE username = ?";
+		
+		List<String> encodedPassword = template.query(getPasswordSQL,
+				new Object[]{username},
+				new BeanPropertyRowMapper<String>(String.class)
+				);
+		
+		System.out.println("encodedPasword.get(0): " + encodedPassword.get(0));
+		
+		boolean passwordMatches = passwordEncoder.matches(password, encodedPassword.get(0));
+		
+		if (passwordMatches) {
+			return true;
+		} else return false;
+		
+		/*System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password);
 		
 		String message = "", sql = null;
 		
@@ -92,7 +115,7 @@ public class UserDaoImpl implements UserDao {
 		
 		System.out.println("message: " + message);
 		
-		return isSuccess;
+		return isSuccess;*/
 	}
 	
 	@Override
