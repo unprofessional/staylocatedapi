@@ -34,13 +34,14 @@ public class UserDaoImpl implements UserDao {
 		
 		String username = user.getUsername();
 		String password = user.getPassword();
+		
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String hashedPassword = passwordEncoder.encode(password);
+		String encodedPassword = passwordEncoder.encode(password);
 		
 		String message = "", sql = null;
 		
 		sql = "INSERT INTO users (username, password)"
-				+ "VALUES ('" + username + "', '" + hashedPassword + "')";
+				+ "VALUES ('" + username + "', '" + encodedPassword + "')";
 		
 		if(checkUserExists(username)) {
 			message = "Username exists! Doing nothing!";
