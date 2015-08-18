@@ -8,18 +8,12 @@ package com.devcru.staylocatedapi.dao.impl;
  * Q2) Should we look into finding a way to return message strings to place into the JsonResponse object?
  */
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -75,17 +69,14 @@ public class UserDaoImpl implements UserDao {
 		
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String sql = "SELECT password FROM users WHERE username = ?";
-		List<String> encodedPassword = null;
+		String encodedPassword = "";
 		
 		try {
 			// Retrieve encodedPassword from storage
-			encodedPassword = template.query(sql,
+			encodedPassword = (String) template.queryForObject(sql,
 					new Object[] {username},
-					new RowMapper<String>() {
-						public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-							return rs.getString(1);
-						}
-					});
+					String.class
+					);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
@@ -95,16 +86,13 @@ public class UserDaoImpl implements UserDao {
 		if (encodedPassword.isEmpty()) {
 			System.out.println("BAD: encodedPassword was empty! No results found for username: " + username);
 			return false;
-		} else if (encodedPassword.size() == 1) {
+		} else {
 			System.out.println("GOOD: encodedPassword contains 1 element! Processing");
 			
 			// This takes the raw pass and encodes it and then checks if it matches the encoded pass in storage
-			boolean passwordMatches = passwordEncoder.matches(password, encodedPassword.get(0));
-
+			boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
 			if (passwordMatches) { return true; }
 			else { return false; }
-		} else {
-			return false;
 		}
 		
 	}
@@ -128,18 +116,18 @@ public class UserDaoImpl implements UserDao {
 	public boolean checkUserExists(String username) {
 		
 		String sql = "SELECT username FROM users WHERE username = ?";
+		String results = null;
 		
-		List<String> results = null;
 		try {
-			results = template.query(sql,
+			results = (String) template.queryForObject(sql,
 			new Object[]{username},
-			new BeanPropertyRowMapper<String>(String.class));
+			(String.class));
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
 		}
 		
-		if(results.isEmpty()) {
+		if(results == null || results.isEmpty()) {
 			System.out.println("Username not found!");
 			return false;
 		} else {
