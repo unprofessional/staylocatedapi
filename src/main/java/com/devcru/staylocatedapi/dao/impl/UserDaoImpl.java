@@ -1,5 +1,13 @@
 package com.devcru.staylocatedapi.dao.impl;
 
+/*
+ * XXX: Theory question(s):
+ * Q1) We are assigning single values back to List<String> types on some queries while using String types on others -- which is better?
+ * A1)   List<String> can absorb multiple values, while String can only do so for a single value
+ * 
+ * Q2) Should we look into finding a way to return message strings to place into the JsonResponse object?
+ */
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -35,11 +43,8 @@ public class UserDaoImpl implements UserDao {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String hashedPassword = passwordEncoder.encode(password);
 		
-		System.out.println("[!!!!!!] " + " username: " + username + " | password: " + password + " | hashedPassword: " + hashedPassword);
-		
 		String message = "", sql = null;
 		
-		// password
 		sql = "INSERT INTO users (username, password)"
 				+ "VALUES ('" + username + "', '" + hashedPassword + "')";
 		
@@ -65,24 +70,17 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean verifyUserCreds(User user) {
 		
-		// FIXME: This will need to independently manage the BCrypt solution being
-		// handled by Spring Security
-		
 		String username = user.getUsername();
 		String password = user.getPassword();
 		
-		// Decode password
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		
 		String sql = "SELECT password FROM users WHERE username = ?";
-		
 		List<String> encodedPassword = null;
 		
-		System.out.println("username: " + username + " | password: " + password);
-		
 		try {
+			// Retrieve encodedPassword from storage
 			encodedPassword = template.query(sql,
-					new Object[]{username},
+					new Object[] {username},
 					new RowMapper<String>() {
 						public String mapRow(ResultSet rs, int rowNum) throws SQLException {
 							return rs.getString(1);
@@ -92,27 +90,22 @@ public class UserDaoImpl implements UserDao {
 			e.printStackTrace();
 			return false;
 		}
-		
-		if(encodedPassword.isEmpty()) {
+
+		// Check for null value returned from the SQL query execution
+		if (encodedPassword.isEmpty()) {
+			System.out.println("BAD: encodedPassword was empty! No results found for username: " + username);
 			return false;
-		} else if(encodedPassword.size() == 1) {
-			// Do nothing
-			System.out.println("GOOD: encodedPassword contains 1 element!");
+		} else if (encodedPassword.size() == 1) {
+			System.out.println("GOOD: encodedPassword contains 1 element! Processing");
+			
+			// This takes the raw pass and encodes it and then checks if it matches the encoded pass in storage
+			boolean passwordMatches = passwordEncoder.matches(password, encodedPassword.get(0));
+
+			if (passwordMatches) { return true; }
+			else { return false; }
 		} else {
 			return false;
 		}
-		
-		for(int i = 0; i < encodedPassword.size(); i++) {
-			System.out.println("encodedPassword.get(i): " + encodedPassword.get(i));
-		}
-		
-		System.out.println("encodedPassword.get(0): " + encodedPassword.get(0));
-		
-		boolean passwordMatches = passwordEncoder.matches(password, encodedPassword.get(0));
-		
-		if (passwordMatches) {
-			return true;
-		} else return false;
 		
 	}
 	
@@ -134,9 +127,7 @@ public class UserDaoImpl implements UserDao {
 	
 	public boolean checkUserExists(String username) {
 		
-		//boolean userExists = false;
-		
-		String sql = "SELECT * FROM users WHERE username = ?";
+		String sql = "SELECT username FROM users WHERE username = ?";
 		
 		List<String> results = null;
 		try {
@@ -160,16 +151,23 @@ public class UserDaoImpl implements UserDao {
 	public String getUuid(String username) {
 		
 		String uuid = "";
-		
 		String sql = "SELECT uuid FROM users WHERE username = ?";
 		
-		uuid = (String) template.queryForObject(sql,
-				new Object[]{username},
-				String.class);
+		try {
+			uuid = (String) template.queryForObject(sql,
+					new Object[]{username},
+					String.class);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
 		
 		System.out.println("getUuid: " + uuid);
 		
-		return uuid; // XXX: Anything that calls this will need to check for the possibility of a null return value
+		if(uuid == null || uuid.isEmpty()) {
+			return null;
+		} else {
+			return uuid;
+		}
 		
 	}
 	
@@ -185,7 +183,11 @@ public class UserDaoImpl implements UserDao {
 		
 		System.out.println("getSalt: " + salt);
 		
-		return salt; // XXX: Anything that calls this will need to check for the possibility of a null return value
+		if(salt == null || salt.isEmpty()) {
+			return null;
+		} else {
+			return salt;
+		}
 		
 	}
 
