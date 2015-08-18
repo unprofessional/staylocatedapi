@@ -81,11 +81,13 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("username: " + username + " | password: " + password);
 		
 		try {
-			encodedPassword = template.query(sql, new RowMapper<String>() {
-				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-					return rs.getString(1);
-				}
-			});
+			encodedPassword = template.query(sql,
+					new Object[]{username},
+					new RowMapper<String>() {
+						public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+							return rs.getString(1);
+						}
+					});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
