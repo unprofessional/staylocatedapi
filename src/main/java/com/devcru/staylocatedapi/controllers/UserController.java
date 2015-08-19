@@ -126,7 +126,7 @@ public class UserController {
 	public @ResponseBody
 	JsonResponse deleteContact(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
 		System.out.println("deleteContact() -- delete request or contact");
-		// delete request or contact
+		// delete request or contact (only if self)
 		return new JsonResponse("OK", "deleteContact()");
 	}
 	
@@ -174,6 +174,7 @@ public class UserController {
 	}
 	
 	// Helper methods (Move to Utils?)
+	// Would this be safer to pass in a String username instead?
 	public boolean isSelf(User user) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -197,21 +198,13 @@ public class UserController {
 	public @ResponseBody
 	JsonResponse testSelf(@RequestBody User user) {
 		
-		// Diagnostics
-		String username = user.getUsername();
-		System.out.println("username: " + username);
-		
 		String message = "";
-		
-		System.out.println(">>> Testing if self");
 		
 		if(isSelf(user)) {
 			message = "User is self";
 		} else {
 			message = "User is NOT self";
 		}
-		
-		System.out.println(">>> Testing if self complete");
 		
 		return new JsonResponse("OK", message);
 		

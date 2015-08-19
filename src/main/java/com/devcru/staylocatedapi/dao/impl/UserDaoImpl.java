@@ -40,15 +40,15 @@ public class UserDaoImpl implements UserDao {
 		
 		String message = "", sql = null;
 		
-		sql = "INSERT INTO users (username, password)"
-				+ "VALUES ('" + username + "', '" + encodedPassword + "')";
+		// FIXME: Use PreparedStatements, even with INSERTs!!!!!!!!
+		sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 		
 		if(checkUserExists(username)) {
 			message = "Username exists! Doing nothing!";
 		} else {
 			message = "Username not found! Creating account!";
 			try {
-				template.update(sql);
+				template.update(sql, new Object[]{username}, new Object[]{encodedPassword});
 				isSuccess = true;
 			} catch (DataAccessException e) {
 				e.printStackTrace();
@@ -59,7 +59,6 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("message: " + message);
 		
 		return isSuccess;
-
 	}
 	
 	@Override
@@ -95,7 +94,6 @@ public class UserDaoImpl implements UserDao {
 			if (passwordMatches) { return true; }
 			else { return false; }
 		}
-		
 	}
 	
 	@Override
@@ -117,9 +115,35 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public boolean createContactRequest(User user) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean createContactRequest(User user1, User user2) {
+		
+		String username1 = user1.getUsername();
+		String username2 = user2.getUsername();
+		
+		boolean isSuccess = false;
+		String sql = "INSERT INTO contact_requests (sender_id, recipient_id)"
+				+ "VALUES(?, ?)";
+		
+		if(checkUserExists(username1) && checkUserExists(username2)) {
+			try {
+				template.update(sql, new Object[]{username1}, new Object[]{username2});
+				isSuccess = true;
+			} catch (DataAccessException e) {
+				e.printStackTrace();
+				isSuccess = false;
+			}
+		} else if (!checkUserExists(username1) && !checkUserExists(username2)){
+			isSuccess = false;
+			System.out.println("username1 AND username2 both not found1");
+		} else if (!checkUserExists(username1)){
+			isSuccess = false;
+			System.out.println("username1 not found!");
+		} else if (!checkUserExists(username2)) {
+			isSuccess = false;
+			System.out.println("username2 not found!");
+		}
+		
+		return isSuccess;
 	}
 
 	@Override
@@ -181,7 +205,6 @@ public class UserDaoImpl implements UserDao {
 		} else {
 			return uuid;
 		}
-		
 	}
 	
 	public String getSalt(String username) {
@@ -201,7 +224,6 @@ public class UserDaoImpl implements UserDao {
 		} else {
 			return salt;
 		}
-		
 	}
 
 }

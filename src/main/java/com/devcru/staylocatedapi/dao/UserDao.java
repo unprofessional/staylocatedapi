@@ -22,7 +22,7 @@ public interface UserDao {
 	boolean viewContacts(User self);
 	
 	// POST
-	boolean createContactRequest(User user);
+	boolean createContactRequest(User user1, User user2);
 	
 	// PUT
 	boolean updateContactRequest(User sender, User recipient);
