@@ -40,7 +40,6 @@ public class UserDaoImpl implements UserDao {
 		
 		String message = "", sql = null;
 		
-		// FIXME: Use PreparedStatements, even with INSERTs!!!!!!!!
 		sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 		
 		if(checkUserExists(username)) {

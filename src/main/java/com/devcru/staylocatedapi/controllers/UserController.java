@@ -111,6 +111,9 @@ public class UserController {
 	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("addRequest() -- add contact request");
 		// add contact request
+		
+		//ud.
+		
 		return new JsonResponse("OK", "addRequest()");
 	}
 	
