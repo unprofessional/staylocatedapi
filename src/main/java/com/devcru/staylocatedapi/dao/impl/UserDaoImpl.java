@@ -47,7 +47,7 @@ public class UserDaoImpl implements UserDao {
 		} else {
 			message = "Username not found! Creating account!";
 			try {
-				template.update(sql, new Object[]{username}, new Object[]{encodedPassword});
+				template.update(sql, new Object[]{username, encodedPassword});
 				isSuccess = true;
 			} catch (DataAccessException e) {
 				e.printStackTrace();
@@ -125,7 +125,7 @@ public class UserDaoImpl implements UserDao {
 		
 		if(checkUserExists(username1) && checkUserExists(username2)) {
 			try {
-				template.update(sql, new Object[]{username1}, new Object[]{username2});
+				template.update(sql, new Object[]{username1, username2});
 				isSuccess = true;
 			} catch (DataAccessException e) {
 				e.printStackTrace();
