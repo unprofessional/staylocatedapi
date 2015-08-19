@@ -8,12 +8,16 @@ package com.devcru.staylocatedapi.dao.impl;
  * Q2) Should we look into finding a way to return message strings to place into the JsonResponse object?
  */
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -167,9 +171,15 @@ public class UserDaoImpl implements UserDao {
 		String results = null;
 		
 		try {
-			results = (String) template.queryForObject(sql,
+			results = (String) template.query(sql,
 			new Object[]{username},
-			(String.class));
+			new ResultSetExtractor<String>() {
+				@Override
+				public String extractData(ResultSet rs) throws SQLException,
+						DataAccessException {
+					return rs.next() ? rs.getString(1) : null;
+				}
+			});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
