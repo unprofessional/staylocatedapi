@@ -169,32 +169,35 @@ public class UserController {
         for(URL url: urls){
         	System.out.println(url.getFile());
         }
-        
-        isSelf();
 		
 		return "Hello world";
 	}
 	
 	// Helper methods (Move to Utils?)
-	//public boolean isSelf(String userId, User user) {
-	public void isSelf() {
+	public boolean isSelf(User user) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
-		System.out.println("authentication.getName(): " + authentication.getName());
-		System.out.println("authentication.getAuthorities: " + authentication.getAuthorities());
-		System.out.println("authentication.getDetails(): " + authentication.getDetails());
-		System.out.println("authentication.getPrinciple(): " + authentication.getPrincipal());
-		System.out.println("authentication.getCredentials(): " + authentication.getCredentials());
+		String authName = authentication.getName();
+		String username = user.getUsername();
 		
-		//String principleUsername = authentication.getPrincipal();
-//		String username = user.getUsername();
-//		
-//		if(username.equals(userId)) {
-//			return true;
-//		} else {
-//			return false;
-//		}
+		System.out.println("authName: " + authName);
+		System.out.println("username: " + username);
+		
+		if(username.equals(authName)) {
+			System.out.println("authName and username match!");
+			return true;
+		} else {
+			System.out.println("authName and username DO NOT match!");
+			return false;
+		}
+	}
+	
+	@RequestMapping(value = "/testself", method=RequestMethod.POST)
+	public @ResponseBody
+	void testSelf(User user) {
+		System.out.println("Testing if self");
+		isSelf(user);
 	}
 	
 }
