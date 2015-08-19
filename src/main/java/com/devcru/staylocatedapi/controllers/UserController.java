@@ -195,9 +195,22 @@ public class UserController {
 	
 	@RequestMapping(value = "/testself", method=RequestMethod.POST)
 	public @ResponseBody
-	void testSelf(User user) {
-		System.out.println("Testing if self");
-		isSelf(user);
+	JsonResponse testSelf(User user) {
+		
+		String message = "";
+		
+		System.out.println(">>> Testing if self");
+		
+		if(isSelf(user)) {
+			message = "User is self";
+		} else {
+			message = "User is NOT self";
+		}
+		
+		System.out.println(">>> Testing if self complete");
+		
+		return new JsonResponse("OK", message);
+		
 	}
 	
 }
