@@ -195,7 +195,11 @@ public class UserController {
 	
 	@RequestMapping(value = "/testself", method=RequestMethod.POST)
 	public @ResponseBody
-	JsonResponse testSelf(User user) {
+	JsonResponse testSelf(@RequestBody User user) {
+		
+		// Diagnostics
+		String username = user.getUsername();
+		System.out.println("username: " + username);
 		
 		String message = "";
 		
