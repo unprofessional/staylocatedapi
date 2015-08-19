@@ -109,6 +109,30 @@ public class UserDaoImpl implements UserDao {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public boolean viewContacts(User self) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean createContactRequest(User user) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean updateContactRequest(User sender, User recipient) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean deleteContact(User sender, User recipient) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 	/*
 	 * DAO Support query-methods

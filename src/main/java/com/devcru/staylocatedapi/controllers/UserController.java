@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -166,9 +168,33 @@ public class UserController {
         
         for(URL url: urls){
         	System.out.println(url.getFile());
-        }		
+        }
+        
+        isSelf();
 		
 		return "Hello world";
+	}
+	
+	// Helper methods (Move to Utils?)
+	//public boolean isSelf(String userId, User user) {
+	public void isSelf() {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		System.out.println("authentication.getName(): " + authentication.getName());
+		System.out.println("authentication.getAuthorities: " + authentication.getAuthorities());
+		System.out.println("authentication.getDetails(): " + authentication.getDetails());
+		System.out.println("authentication.getPrinciple(): " + authentication.getPrincipal());
+		System.out.println("authentication.getCredentials(): " + authentication.getCredentials());
+		
+		//String principleUsername = authentication.getPrincipal();
+//		String username = user.getUsername();
+//		
+//		if(username.equals(userId)) {
+//			return true;
+//		} else {
+//			return false;
+//		}
 	}
 	
 }

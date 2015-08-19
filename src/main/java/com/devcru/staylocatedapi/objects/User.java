@@ -4,8 +4,8 @@ public class User {
 	
 	private String uuid = "";
 	private String username = "";
-	private String email = "";
 	private String password = "";
+	private String email = "";
 	private String firstName = "";
 	private String lastName = "";
 	
@@ -20,6 +20,12 @@ public class User {
 	}
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	public String getEmail() {
 		return email;
@@ -38,12 +44,6 @@ public class User {
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 }
