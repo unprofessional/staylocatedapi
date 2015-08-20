@@ -116,6 +116,9 @@ public class UserController {
 		String senderUsername = ud.getUsername(userUuid);
 		senderUser.setUsername(senderUsername);
 		
+		System.out.println("DEBUG: senderUsername: " + senderUsername);
+		System.out.println("DEBUG: senderUser.getUsername(): " + senderUser.getUsername());
+		
 		if(isSelf(senderUser)) {
 			message = "Accessor is self";
 			ud.createContactRequest(senderUser, recipientUser);
@@ -190,6 +193,8 @@ public class UserController {
 	// Helper methods (Move to Utils?)
 	// Would this be safer to pass in a String username instead?
 	public boolean isSelf(User user) {
+		
+		System.out.println("DEBUG: user.getUsername(): " + user.getUsername());
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
