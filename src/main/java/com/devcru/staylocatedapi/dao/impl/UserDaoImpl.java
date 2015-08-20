@@ -10,6 +10,7 @@ package com.devcru.staylocatedapi.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -230,10 +231,15 @@ public class UserDaoImpl implements UserDao {
 
 		String username = "";
 		String sql = "SELECT username FROM users WHERE uuid = ?";
+		
+		// Need to cast userUuid as a UUID so data type can match database type
+		UUID convertedUuid = UUID.fromString(userUuid);
+		
+		System.out.println("DEBUG: convertedUuid.toString(): " + convertedUuid.toString());
 
 		try {
 			username = (String) template.query(sql,
-					new Object[]{userUuid},
+					new Object[]{convertedUuid},
 					new ResultSetExtractor<String>() {
 				@Override
 				public String extractData(ResultSet rs) throws SQLException,
