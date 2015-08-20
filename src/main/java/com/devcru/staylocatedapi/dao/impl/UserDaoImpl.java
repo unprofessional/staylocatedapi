@@ -270,8 +270,8 @@ public class UserDaoImpl implements UserDao {
 		int status = -1; // Request doesn't exist
 		
 		try {
-			status = template.queryForInt(sql,
-					new UUID[] { userUuid1, userUuid2 },
+			status = template.query(sql,
+					new Object[] { userUuid1, userUuid2 },
 					new ResultSetExtractor<Integer>() {
 						@Override
 						public Integer extractData(ResultSet rs)
