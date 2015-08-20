@@ -2,6 +2,7 @@ package com.devcru.staylocatedapi.controllers;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -110,17 +111,25 @@ public class UserController {
 	public @ResponseBody
 	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User recipientUser) {
 		
+		// UUID must be passed as a String in the URL.
+		// TODO: Test with UUID datatype later.
+		
 		String message = "";
 		
 		User senderUser = new User();
-		String senderUsername = ud.getUsername(userUuid);
+		UUID senderUuid = UUID.fromString(userUuid);
+		String senderUsername = ud.getUsername(senderUuid);
+		
+		senderUser.setUuid(senderUuid);
 		senderUser.setUsername(senderUsername);
+		
+		// Recipient UUID is gathered on the DaoImpl side since we are only passing a User object here
 		
 		System.out.println("DEBUG: senderUsername: " + senderUsername);
 		System.out.println("DEBUG: senderUser.getUsername(): " + senderUser.getUsername());
 		
 		if(isSelf(senderUser)) {
-			message = "Accessor is self";
+			message = "Accessor is self, creating request";
 			ud.createContactRequest(senderUser, recipientUser);
 		} else {
 			message = "Accessor is not self, doing nothing";

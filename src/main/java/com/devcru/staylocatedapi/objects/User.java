@@ -1,18 +1,20 @@
 package com.devcru.staylocatedapi.objects;
 
+import java.util.UUID;
+
 public class User {
 	
-	private String uuid = "";
+	private UUID uuid = null;
 	private String username = "";
 	private String password = "";
 	private String email = "";
 	private String firstName = "";
 	private String lastName = "";
 	
-	public String getUuid() {
+	public UUID getUuid() {
 		return uuid;
 	}
-	public void setUuid(String uuid) {
+	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
 	public String getUsername() {

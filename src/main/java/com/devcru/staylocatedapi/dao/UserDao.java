@@ -1,5 +1,7 @@
 package com.devcru.staylocatedapi.dao;
 
+import java.util.UUID;
+
 import com.devcru.staylocatedapi.objects.User;
 
 public interface UserDao {
@@ -37,6 +39,6 @@ public interface UserDao {
 	// SUPPORT HTTP-agnostic methods
 	boolean checkUserExists(String username);
 	String getUuid(String username);
-	String getUsername(String userUuid);
+	String getUsername(UUID userUuid);
 
 }

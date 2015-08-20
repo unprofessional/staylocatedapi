@@ -124,6 +124,12 @@ public class UserDaoImpl implements UserDao {
 		String username1 = user1.getUsername();
 		String username2 = user2.getUsername();
 		
+		UUID senderUuid = user1.getUuid();
+		UUID recipientUuid = user2.getUuid();
+		
+		System.out.println("DEBUG: senderUuid.toString(): " + senderUuid.toString());
+		System.out.println("DEBUG: recipientUuid.toString(): " + recipientUuid.toString());
+		
 		boolean isSuccess = false;
 		String sql = "INSERT INTO contact_requests (sender_id, recipient_id, status)"
 				+ "VALUES(?, ?, ?)";
@@ -131,7 +137,7 @@ public class UserDaoImpl implements UserDao {
 		if(checkUserExists(username1) && checkUserExists(username2)) {
 			try {
 				// status codes: 0 (pending), 1 (rejected), 2 (accepted)
-				template.update(sql, new Object[]{username1, username2, 0});
+				template.update(sql, new Object[]{senderUuid, recipientUuid, 0});
 				isSuccess = true;
 			} catch (DataAccessException e) {
 				e.printStackTrace();
@@ -227,19 +233,16 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public String getUsername(String userUuid) {
+	public String getUsername(UUID userUuid) {
 
 		String username = "";
 		String sql = "SELECT username FROM users WHERE uuid = ?";
 		
-		// Need to cast userUuid as a UUID so data type can match database type
-		UUID convertedUuid = UUID.fromString(userUuid);
-		
-		System.out.println("DEBUG: convertedUuid.toString(): " + convertedUuid.toString());
+		System.out.println("DEBUG: userUuid.toString(): " + userUuid.toString());
 
 		try {
 			username = (String) template.query(sql,
-					new Object[]{convertedUuid},
+					new Object[]{userUuid},
 					new ResultSetExtractor<String>() {
 				@Override
 				public String extractData(ResultSet rs) throws SQLException,
