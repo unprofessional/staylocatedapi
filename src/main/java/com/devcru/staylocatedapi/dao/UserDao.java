@@ -40,5 +40,6 @@ public interface UserDao {
 	boolean checkUserExists(String username);
 	String getUuid(String username);
 	String getUsername(UUID userUuid);
+	int getContactRequestStatus(UUID userUuid1, UUID userUuid2);
 
 }

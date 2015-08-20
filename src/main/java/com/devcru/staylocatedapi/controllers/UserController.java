@@ -104,24 +104,20 @@ public class UserController {
 	public @ResponseBody
 	JsonResponse getUserContacts(@PathVariable ("uuid") String userUuid) {
 		System.out.println("getUserContacts() -- list of contacts");
-		// get list of user contactss
+		// get list of user contacts
 		return new JsonResponse("OK", "getUserContacts()");
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
-	JsonResponse addRequest(@PathVariable ("uuid") UUID userUuid, @RequestBody User recipientUser) {
-		
-		// UUID must be passed as a String in the URL.
-		// TODO: Test with UUID datatype later.
-		
+	JsonResponse createContactRequest(@PathVariable ("uuid") UUID senderUuid, @RequestBody User recipientUser) {
+		// User must be self to make a contact request, else this does nothing
 		String message = "";
 		
 		User senderUser = new User();
-		//UUID senderUuid = UUID.fromString(userUuid);
-		String senderUsername = ud.getUsername(userUuid);
+		String senderUsername = ud.getUsername(senderUuid);
 		
-		senderUser.setUuid(userUuid);
+		senderUser.setUuid(senderUuid);
 		senderUser.setUsername(senderUsername);
 		
 		String recipientUsername = recipientUser.getUsername();
@@ -132,7 +128,7 @@ public class UserController {
 		System.out.println("DEBUG: senderUser.getUsername(): " + senderUser.getUsername());
 		
 		if(isSelf(senderUser)) {
-			message = "Accessor is self, creating request";
+			message = "Accessor is self, creating contact request";
 			ud.createContactRequest(senderUser, recipientUser);
 		} else {
 			message = "Accessor is not self, doing nothing";
@@ -141,6 +137,16 @@ public class UserController {
 		System.out.println(message);
 		
 		return new JsonResponse("OK", message);
+	}
+	
+	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.GET)
+	public @ResponseBody
+	JsonResponse getRequestState(@PathVariable ("uuid") UUID userUuid1, UUID userUuid2) {
+		// User must be self to make view own contact request status, else this does nothing
+		// Should return: 0 (pending), 1 (denied), 2 (approved), or -1 (no request)
+		// ud.getContactRequestStatus(userUuid1, userUuid2);
+		
+		return new JsonResponse("OK", "getRequestState()");
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
