@@ -124,12 +124,13 @@ public class UserDaoImpl implements UserDao {
 		String username2 = user2.getUsername();
 		
 		boolean isSuccess = false;
-		String sql = "INSERT INTO contact_requests (sender_id, recipient_id)"
-				+ "VALUES(?, ?)";
+		String sql = "INSERT INTO contact_requests (sender_id, recipient_id, status)"
+				+ "VALUES(?, ?, ?)";
 		
 		if(checkUserExists(username1) && checkUserExists(username2)) {
 			try {
-				template.update(sql, new Object[]{username1, username2});
+				// status codes: 0 (pending), 1 (rejected), 2 (accepted)
+				template.update(sql, new Object[]{username1, username2, 0});
 				isSuccess = true;
 			} catch (DataAccessException e) {
 				e.printStackTrace();
@@ -165,6 +166,7 @@ public class UserDaoImpl implements UserDao {
 	 * DAO Support query-methods
 	 */
 	
+	@Override
 	public boolean checkUserExists(String username) {
 		
 		String sql = "SELECT username FROM users WHERE username = ?";
@@ -172,14 +174,14 @@ public class UserDaoImpl implements UserDao {
 		
 		try {
 			results = (String) template.query(sql,
-			new Object[]{username},
-			new ResultSetExtractor<String>() {
+					new Object[]{username},
+					new ResultSetExtractor<String>() {
 				@Override
 				public String extractData(ResultSet rs) throws SQLException,
 						DataAccessException {
 					return rs.next() ? rs.getString(1) : null;
 				}
-			});
+				});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
@@ -194,15 +196,22 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 	
+	@Override
 	public String getUuid(String username) {
 		
 		String uuid = "";
 		String sql = "SELECT uuid FROM users WHERE username = ?";
 		
 		try {
-			uuid = (String) template.queryForObject(sql,
+			uuid = (String) template.query(sql,
 					new Object[]{username},
-					String.class);
+					new ResultSetExtractor<String>() {
+				@Override
+				public String extractData(ResultSet rs) throws SQLException,
+						DataAccessException {
+					return rs.next() ? rs.getString(1) : null;
+				}
+				});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -215,24 +224,55 @@ public class UserDaoImpl implements UserDao {
 			return uuid;
 		}
 	}
-	
-	public String getSalt(String username) {
-		
-		String salt = "";
-		
-		String sql = "SELECT password_salt FROM users WHERE username = ?";
-		
-		salt = (String) template.queryForObject(sql,
-				new Object[]{username},
-				String.class);
-		
-		System.out.println("getSalt: " + salt);
-		
-		if(salt == null || salt.isEmpty()) {
+
+	@Override
+	public String getUsername(String userUuid) {
+
+		String username = "";
+		String sql = "SELECT username FROM users WHERE uuid = ?";
+
+		try {
+			username = (String) template.query(sql,
+					new Object[]{userUuid},
+					new ResultSetExtractor<String>() {
+				@Override
+				public String extractData(ResultSet rs) throws SQLException,
+						DataAccessException {
+					return rs.next() ? rs.getString(1) : null;
+				}
+				});
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("getUsername: " + username);
+
+		if (username == null || username.isEmpty()) {
 			return null;
 		} else {
-			return salt;
+			return username;
 		}
 	}
+	
+//	public User getUser(String userUuid) {
+//		
+//		User user = new User();
+//		
+//		String sql = "SELECT  * FROM users WHERE uuid = ?";
+//		
+//		String userString = template.query(sql,
+//				new Object[]{userUuid},
+//				new ResultSetExtractor<String>() {
+//				@Override
+//				public String extractData(ResultSet rs) throws SQLException,
+//						DataAccessException {
+//					return rs.next() ? rs.getString(1) : null;
+//				}
+//				});
+//		
+//		System.out.println("userString: " + userString);
+//		
+//		return user;
+//	}
 
 }

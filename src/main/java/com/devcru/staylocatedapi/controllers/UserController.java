@@ -108,13 +108,24 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
-	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
-		System.out.println("addRequest() -- add contact request");
-		// add contact request
+	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User recipientUser) {
 		
-		//ud.
+		String message = "";
 		
-		return new JsonResponse("OK", "addRequest()");
+		User senderUser = new User();
+		String senderUsername = ud.getUsername(userUuid);
+		senderUser.setUsername(senderUsername);
+		
+		if(isSelf(senderUser)) {
+			message = "Accessor is self";
+			ud.createContactRequest(senderUser, recipientUser);
+		} else {
+			message = "Accessor is not self, doing nothing";
+		}
+		
+		System.out.println(message);
+		
+		return new JsonResponse("OK", message);
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)

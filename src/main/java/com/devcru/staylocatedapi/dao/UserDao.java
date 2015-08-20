@@ -30,8 +30,13 @@ public interface UserDao {
 	// DELETE
 	boolean deleteContact(User sender, User recipient);
 	
-	// Support methods (may ultimately not be necessary)
+	// Support HTTP methods (may ultimately not be necessary)
 	// POST
 	boolean verifyUserCreds(User user);
+	
+	// SUPPORT HTTP-agnostic methods
+	boolean checkUserExists(String username);
+	String getUuid(String username);
+	String getUsername(String userUuid);
 
 }
