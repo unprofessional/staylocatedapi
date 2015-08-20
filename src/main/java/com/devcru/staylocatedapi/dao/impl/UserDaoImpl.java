@@ -271,7 +271,7 @@ public class UserDaoImpl implements UserDao {
 		
 		try {
 			status = template.queryForInt(sql,
-					new Object[] { userUuid1, userUuid2 },
+					new UUID[] { userUuid1, userUuid2 },
 					new ResultSetExtractor<Integer>() {
 						@Override
 						public Integer extractData(ResultSet rs)
