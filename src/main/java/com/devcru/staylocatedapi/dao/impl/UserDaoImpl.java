@@ -277,9 +277,9 @@ public class UserDaoImpl implements UserDao {
 						public Integer extractData(ResultSet rs)
 								throws SQLException, DataAccessException {
 							//System.out.println("DEBUG: rs.next(): " + rs.next());
-							System.out.println("DEBUG: rs.getString(1): " + rs.getString(1));
-							System.out.println("DEBUG: rs.getInt(1): " + rs.getInt(1));
-							return (Integer) (rs.next() ? rs.getInt(1) : -1);
+							System.out.println("DEBUG: rs.getString(0): " + rs.getString(0));
+							System.out.println("DEBUG: rs.getInt(0): " + rs.getInt(0));
+							return (Integer) (rs.next() ? rs.getInt(1) : -99);
 						}
 					});
 		} catch (DataAccessException e) {
