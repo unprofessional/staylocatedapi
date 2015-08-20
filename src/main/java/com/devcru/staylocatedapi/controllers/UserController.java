@@ -141,7 +141,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getRequestState(@PathVariable ("uuid") UUID userUuid1, UUID userUuid2) {
+	JsonResponse getRequestState(@PathVariable ("uuid") UUID userUuid1, @PathVariable ("uuid") UUID userUuid2) {
 		// User must be self to make view own contact request status, else this does nothing
 		// Should return: 0 (pending), 1 (denied), 2 (approved), or -1 (no request)
 		// ud.getContactRequestStatus(userUuid1, userUuid2);
