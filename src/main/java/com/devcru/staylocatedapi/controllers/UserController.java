@@ -4,6 +4,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.UUID;
 
+import javax.sound.midi.Receiver;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
@@ -123,7 +124,9 @@ public class UserController {
 		senderUser.setUuid(senderUuid);
 		senderUser.setUsername(senderUsername);
 		
-		// Recipient UUID is gathered on the DaoImpl side since we are only passing a User object here
+		String recipientUsername = recipientUser.getUsername();
+		UUID recipientUuid = UUID.fromString(ud.getUuid(recipientUsername));
+		recipientUser.setUuid(recipientUuid);
 		
 		System.out.println("DEBUG: senderUsername: " + senderUsername);
 		System.out.println("DEBUG: senderUser.getUsername(): " + senderUser.getUsername());
