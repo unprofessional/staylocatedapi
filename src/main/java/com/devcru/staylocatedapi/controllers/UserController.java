@@ -110,7 +110,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
-	JsonResponse addRequest(@PathVariable ("uuid") String userUuid, @RequestBody User recipientUser) {
+	JsonResponse addRequest(@PathVariable ("uuid") UUID userUuid, @RequestBody User recipientUser) {
 		
 		// UUID must be passed as a String in the URL.
 		// TODO: Test with UUID datatype later.
@@ -118,10 +118,10 @@ public class UserController {
 		String message = "";
 		
 		User senderUser = new User();
-		UUID senderUuid = UUID.fromString(userUuid);
-		String senderUsername = ud.getUsername(senderUuid);
+		//UUID senderUuid = UUID.fromString(userUuid);
+		String senderUsername = ud.getUsername(userUuid);
 		
-		senderUser.setUuid(senderUuid);
+		senderUser.setUuid(userUuid);
 		senderUser.setUsername(senderUsername);
 		
 		String recipientUsername = recipientUser.getUsername();
