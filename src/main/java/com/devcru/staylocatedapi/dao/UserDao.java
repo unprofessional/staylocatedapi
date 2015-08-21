@@ -27,7 +27,9 @@ public interface UserDao {
 	boolean createContactRequest(User user1, User user2);
 	
 	// PUT
-	boolean updateContactRequest(User sender, User recipient);
+	boolean updateContactRequest(int status, User sender, User recipient);
+	boolean deleteContactRequest(User sender, User recipient);
+	boolean createContact(User requester, User accepter);
 	
 	// DELETE
 	boolean deleteContact(User sender, User recipient);

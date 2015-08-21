@@ -156,10 +156,40 @@ public class UserDaoImpl implements UserDao {
 		
 		return isSuccess;
 	}
+	
+	@Override
+	public boolean deleteContactRequest(User sender, User recipient) {
+		// Prune the request when it is no longer needed
+		return false;
+	}
 
 	@Override
-	public boolean updateContactRequest(User sender, User recipient) {
-		// TODO Auto-generated method stub
+	public boolean updateContactRequest(int status, User sender, User recipient) {
+		
+		boolean isSuccess = false;
+		
+		status = 0;
+		UUID senderUuid = null;
+		UUID recipientUuid = null;
+		
+		String sql = "UPDATE users SET = ? WHERE sender_id = ? AND recipient_id = ?";
+		
+		try {
+			template.update(sql, new Object[]{status, senderUuid, recipientUuid});
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
+		
+		return isSuccess;
+	}
+	
+	@Override
+	public boolean createContact(User requester, User accepter) {
+		
+		
+		
 		return false;
 	}
 

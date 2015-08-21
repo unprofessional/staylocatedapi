@@ -4,7 +4,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.UUID;
 
-import javax.sound.midi.Receiver;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
@@ -68,7 +67,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getAccountDetails(@PathVariable ("uuid") String userUuid) {
+	JsonResponse getAccountDetails(@PathVariable("uuid") String userUuid) {
 		System.out.println("getAccountDetails()");
 		// get user account details
 		return new JsonResponse("OK", "getAccountDetails()");
@@ -77,7 +76,7 @@ public class UserController {
 	// TODO: Determine if User is necessary in all methods
 	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
-	JsonResponse deleteUser(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
+	JsonResponse deleteUser(@PathVariable("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("deleteUser()");
 		// remove user account
 		return new JsonResponse("OK", "deleteUser()");
@@ -85,7 +84,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getUserProfile(@PathVariable ("uuid") String userUuid) {
+	JsonResponse getUserProfile(@PathVariable("uuid") String userUuid) {
 		System.out.println("getUserProfile()");
 		// get user profile
 		return new JsonResponse("OK", "getUserProfile()");
@@ -93,7 +92,7 @@ public class UserController {
 
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse updateUserProfile(@PathVariable ("uuid") String userUuid, @RequestBody User user) {
+	JsonResponse updateUserProfile(@PathVariable("uuid") String userUuid, @RequestBody User user) {
 		System.out.println("updateUserProfile()");
 		// update user profile (only if self)
 		// XXX: Do we change this to a root of profile for self???
@@ -102,7 +101,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getUserContacts(@PathVariable ("uuid") String userUuid) {
+	JsonResponse getUserContacts(@PathVariable("uuid") String userUuid) {
 		System.out.println("getUserContacts() -- list of contacts");
 		// get list of user contacts
 		return new JsonResponse("OK", "getUserContacts()");
@@ -110,7 +109,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
-	JsonResponse createContactRequest(@PathVariable ("uuid") UUID senderUuid, @RequestBody User recipientUser) {
+	JsonResponse createContactRequest(@PathVariable("uuid") UUID senderUuid, @RequestBody User recipientUser) {
 		// User must be self to make a contact request, else this does nothing
 		String message = "";
 		
@@ -141,8 +140,8 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getRequestState(@PathVariable ("uuid1") UUID userUuid1, @PathVariable ("uuid2") UUID userUuid2) {
-		// User must be self to make view own contact request status, else this does nothing
+	JsonResponse getRequestState(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2) {
+		// User must be self AND sender to make view own contact request status, else this does nothing
 		// Should return: 0 (pending), 1 (denied), 2 (approved), or -1 (no request)
 		String key = null;
 		String message = null;
@@ -154,7 +153,7 @@ public class UserController {
 		if(isSelf(senderUser)) {
 			key = "ContactRequestStatus";
 			message = "" + ud.getContactRequestStatus(userUuid1, userUuid2);
-			// FIXME: I don't like converting to a String, would prefer datatype consistency
+			// FIXME: I don't like converting to a String, would prefer data-type consistency
 		} else {
 			key = "Error";
 			message = "Accessor is not self, doing nothing";
@@ -165,15 +164,46 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse approveRequest(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
-		System.out.println("approveRequest() -- approve contact request");
-		// confirm contact request
-		return new JsonResponse("OK", "approveRequest()");
+	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2, @RequestBody int status) {
+		
+		// ???: if(status == 0 || status == 1 || status == 2) { Do stuff } else { return "Invalid status code" };
+		
+		// TODO: REFACTOR ALL METHODS THAT APPLY!!!
+		// TODO: Should make use of the boolean return values in the UserDaoImpl methods...
+		// TODO: i.e. if(true){ message = "it worked"; } else { "it failed"; }
+		
+		String key = "OK"; // When we check for the above (boolean return), make this "Error"
+		String message = null;
+		
+		User senderUser = new User();
+		String senderUsername = ud.getUsername(userUuid1);
+		senderUser.setUsername(senderUsername);
+		
+		User recipientUser = new User();
+		String recipientUsername = ud.getUsername(userUuid2);
+		recipientUser.setUsername(recipientUsername);
+		
+		// User must be sender with status 1 (reject/cancel), or recipient with status 1 (reject) or 2 (approve)
+		if(isSelf(senderUser) && status == 1) {
+			message = "Accessor is sender and originator of request with status 1, canceling request";
+			ud.updateContactRequest(status, senderUser, recipientUser);
+		} else if(isSelf(recipientUser) && status == 1) {
+			message = "Accessor is recipient of request with status 1, rejecting request";
+			ud.updateContactRequest(status, senderUser, recipientUser);
+		} else if(isSelf(recipientUser) && status == 2) {
+			message = "Accessor is recipient of request with status 2, approving request";
+			ud.updateContactRequest(status, senderUser, recipientUser);
+			ud.createContact(senderUser, recipientUser);
+		} else {
+			message = "Accessor is neither self nor recipient with an appropriate status code, doing nothing";
+		}
+		
+		return new JsonResponse(key, message);
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
-	JsonResponse deleteContact(@PathVariable ("uuid") String userUuid, String userUuid2, @RequestBody User user) {
+	JsonResponse deleteContact(@PathVariable("uuid") String userUuid, String userUuid2, @RequestBody User user) {
 		System.out.println("deleteContact() -- delete request or contact");
 		// delete request or contact (only if self)
 		return new JsonResponse("OK", "deleteContact()");
