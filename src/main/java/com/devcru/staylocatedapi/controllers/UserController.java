@@ -144,9 +144,23 @@ public class UserController {
 	JsonResponse getRequestState(@PathVariable ("uuid1") UUID userUuid1, @PathVariable ("uuid2") UUID userUuid2) {
 		// User must be self to make view own contact request status, else this does nothing
 		// Should return: 0 (pending), 1 (denied), 2 (approved), or -1 (no request)
-		ud.getContactRequestStatus(userUuid1, userUuid2);
+		String key = null;
+		String message = null;
+		int code = -1;
 		
-		return new JsonResponse("OK", "getRequestState()");
+		User senderUser = new User();
+		String senderUsername = ud.getUsername(userUuid1);
+		senderUser.setUsername(senderUsername);
+		
+		if(isSelf(senderUser)) {
+			key = "ContactRequestStatus";
+			code = ud.getContactRequestStatus(userUuid1, userUuid2);
+			return new JsonResponse(key, code);
+		} else {
+			key = "Error";
+			message = "Accessor is not self, doing nothing";
+			return new JsonResponse(key, message);
+		}
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)

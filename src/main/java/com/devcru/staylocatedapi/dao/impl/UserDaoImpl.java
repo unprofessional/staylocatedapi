@@ -269,9 +269,6 @@ public class UserDaoImpl implements UserDao {
 		String sql = "SELECT status FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
 		int status = -1; // Default (should never return this)
 		
-		System.out.println("UUID1: " + userUuid1);
-		System.out.println("UUID2: " + userUuid2);
-		
 		try {
 			status = template.query(sql,
 					new Object[] { userUuid1, userUuid2 },
