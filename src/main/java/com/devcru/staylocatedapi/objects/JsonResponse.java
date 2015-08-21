@@ -7,7 +7,7 @@ public class JsonResponse {
 
 	public JsonResponse(String status, String message) {
 		this.setStatus(status);
-		this.setErrorMessage(message);
+		this.setMessage(message);
 	}
 
 	public String getStatus() {
@@ -18,11 +18,11 @@ public class JsonResponse {
 		this.status = status;
 	}
 
-	public String getErrorMessage() {
+	public String getMessage() {
 		return message;
 	}
 
-	public void setErrorMessage(String message) {
+	public void setMessage(String message) {
 		this.message = message;
 	}
 	
