@@ -276,7 +276,7 @@ public class UserDaoImpl implements UserDao {
 						@Override
 						public Integer extractData(ResultSet rs)
 								throws SQLException, DataAccessException {
-							return (Integer) (rs.next() ? rs.getInt(1) : -99);
+							return (rs.next() ? rs.getInt(1) : -99);
 						}
 					});
 		} catch (DataAccessException e) {
