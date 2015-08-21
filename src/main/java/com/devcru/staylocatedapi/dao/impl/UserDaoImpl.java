@@ -166,6 +166,9 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean updateContactRequest(int status, User sender, User recipient) {
 		
+		System.out.println("DaoImpl: Updating contactRequest...");
+		System.out.println("DaoImpl: status: " + status);
+		
 		boolean isSuccess = false;
 		
 		UUID senderUuid = null;
