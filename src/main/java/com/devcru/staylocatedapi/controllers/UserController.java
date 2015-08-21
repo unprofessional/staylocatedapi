@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.devcru.staylocatedapi.dao.UserDao;
+import com.devcru.staylocatedapi.objects.ContactRequest;
 import com.devcru.staylocatedapi.objects.JsonResponse;
 import com.devcru.staylocatedapi.objects.User;
 
@@ -164,10 +165,11 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2, @RequestBody int status) {
+	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2,
+			@RequestBody ContactRequest contactRequest) {
 		
+		int status = contactRequest.getStatus();
 		System.out.println("DEBUG: status: " + status);
-		// FIXME: Looks like we may need a contact_request POJO after all...
 		
 		// ???: if(status == 0 || status == 1 || status == 2) { Do stuff } else { return "Invalid status code" };
 		
