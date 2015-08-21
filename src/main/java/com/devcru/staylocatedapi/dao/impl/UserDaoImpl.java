@@ -172,7 +172,7 @@ public class UserDaoImpl implements UserDao {
 		UUID senderUuid = null;
 		UUID recipientUuid = null;
 		
-		String sql = "UPDATE users SET status = ? WHERE sender_id = ? AND recipient_id = ?";
+		String sql = "UPDATE contact_requests SET status = ? WHERE sender_id = ? AND recipient_id = ?";
 		
 		try {
 			template.update(sql, new Object[]{status, senderUuid, recipientUuid});
