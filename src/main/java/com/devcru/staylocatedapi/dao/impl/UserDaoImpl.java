@@ -168,7 +168,6 @@ public class UserDaoImpl implements UserDao {
 		
 		boolean isSuccess = false;
 		
-		status = 0;
 		UUID senderUuid = null;
 		UUID recipientUuid = null;
 		
@@ -188,7 +187,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean createContact(User requester, User accepter) {
 		
-		
+		System.out.println("DaoImpl: Creating contact... (mock)");
 		
 		return false;
 	}
