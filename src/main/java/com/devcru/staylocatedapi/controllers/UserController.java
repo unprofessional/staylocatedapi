@@ -146,7 +146,6 @@ public class UserController {
 		// Should return: 0 (pending), 1 (denied), 2 (approved), or -1 (no request)
 		String key = null;
 		String message = null;
-		int code = -1;
 		
 		User senderUser = new User();
 		String senderUsername = ud.getUsername(userUuid1);
@@ -154,13 +153,14 @@ public class UserController {
 		
 		if(isSelf(senderUser)) {
 			key = "ContactRequestStatus";
-			code = ud.getContactRequestStatus(userUuid1, userUuid2);
-			return new JsonResponse(key, code);
+			message = "" + ud.getContactRequestStatus(userUuid1, userUuid2);
+			// FIXME: I don't like converting to a String, would prefer datatype consistency
 		} else {
 			key = "Error";
 			message = "Accessor is not self, doing nothing";
-			return new JsonResponse(key, message);
 		}
+		
+		return new JsonResponse(key, message);
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
