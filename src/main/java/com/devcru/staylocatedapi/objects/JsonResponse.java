@@ -5,9 +5,9 @@ public class JsonResponse {
 	private String status = "";
 	private String message = "";
 
-	public JsonResponse(String status, String errorMessage) {
+	public JsonResponse(String status, String message) {
 		this.setStatus(status);
-		this.setErrorMessage(errorMessage);
+		this.setErrorMessage(message);
 	}
 
 	public String getStatus() {
@@ -22,8 +22,8 @@ public class JsonResponse {
 		return message;
 	}
 
-	public void setErrorMessage(String errorMessage) {
-		this.message = errorMessage;
+	public void setErrorMessage(String message) {
+		this.message = message;
 	}
 	
 }
