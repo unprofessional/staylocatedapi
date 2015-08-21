@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -164,7 +165,9 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2, @RequestBody int status) {
+	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2, @ModelAttribute int status) {
+		
+		// FIXME: Looks like we may need a contact_request POJO after all...
 		
 		// ???: if(status == 0 || status == 1 || status == 2) { Do stuff } else { return "Invalid status code" };
 		
