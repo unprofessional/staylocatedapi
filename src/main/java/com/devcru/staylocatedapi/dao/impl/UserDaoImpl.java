@@ -269,16 +269,20 @@ public class UserDaoImpl implements UserDao {
 		String sql = "SELECT status FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
 		int status = -1; // Request doesn't exist
 		
+		System.out.println("UUID1: " + userUuid1);
+		System.out.println("UUID2: " + userUuid2);
+		
 		try {
-			status = template.query(sql,
+			status = template.queryForObject(sql,
 					new Object[] { userUuid1, userUuid2 },
-					new ResultSetExtractor<Integer>() {
-						@Override
-						public Integer extractData(ResultSet rs)
-								throws SQLException, DataAccessException {
-							return (rs.next() ? rs.getInt(1) : -99);
-						}
-					});
+					Integer.class);
+//					new ResultSetExtractor<Integer>() {
+//						@Override
+//						public Integer extractData(ResultSet rs)
+//								throws SQLException, DataAccessException {
+//							return (rs.next() ? rs.getInt(1) : -99);
+//						}
+//					});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
