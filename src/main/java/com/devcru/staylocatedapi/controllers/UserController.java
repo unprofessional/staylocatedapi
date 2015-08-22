@@ -190,13 +190,11 @@ public class UserController {
 		
 		boolean isSender = isSelf(senderUser);
 		boolean isRecipient = isSelf(recipientUser);
-		boolean isAllowed = isSender ? isRecipient : false;
 		
 		System.out.println("isSender: " + isSender);
 		System.out.println("isRecipient: " + isRecipient);
-		System.out.println("isAllowed: " + isAllowed);
 		
-		if(isAllowed) {
+		if(isSender || isRecipient) {
 		
 			if (status == 1) {
 				if (isSender) {
