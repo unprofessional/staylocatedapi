@@ -200,15 +200,15 @@ public class UserController {
 				}
 				// Execute update
 				if(ud.updateContactRequest(status, senderUser, recipientUser)) {
-					message += "Success";
+					message += "Update Success";
 				} else {
 					key = "Error";
-					message += "Failure";
+					message += "Update Failure";
 				}
 			} else if (status == 2) {
 				if (isRecipient) {
 					message = "Accessor is recipient of request with status 2, approving request: ";
-					// Execute update
+					// Execute update (Need to enforce ACIDity with create execution)
 					if(ud.updateContactRequest(status, senderUser, recipientUser)) {
 						message += "Update Success";
 					} else {
