@@ -183,11 +183,16 @@ public class UserDaoImpl implements UserDao {
 		
 		String sql = "UPDATE contact_requests SET status = ? WHERE sender_id = ? AND recipient_id = ?";
 		
-		try {
-			template.update(sql, new Object[]{status, senderUuid, recipientUuid});
-			isSuccess = true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
+		if(sender != null && recipient != null) {
+			try {
+				template.update(sql, new Object[]{status, senderUuid, recipientUuid});
+				isSuccess = true;
+			} catch (DataAccessException e) {
+				e.printStackTrace();
+				isSuccess = false;
+			}
+		} else {
+			System.out.println("DaoImpl: sender or recipient are NULL, doing nothing");
 			isSuccess = false;
 		}
 		

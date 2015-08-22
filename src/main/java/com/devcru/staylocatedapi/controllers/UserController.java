@@ -173,7 +173,7 @@ public class UserController {
 		
 		// ???: if(status == 0 || status == 1 || status == 2) { Do stuff } else { return "Invalid status code" };
 		
-		// TODO: REFACTOR ALL METHODS THAT APPLY!!!
+		// TODO: REFACTOR ALL METHODS THAT APPLY!!! (this has officially become a problem)
 		// TODO: Should make use of the boolean return values in the UserDaoImpl methods...
 		// TODO: i.e. if(true){ message = "it worked"; } else { "it failed"; }
 		
@@ -182,10 +182,12 @@ public class UserController {
 		
 		User senderUser = new User();
 		String senderUsername = ud.getUsername(userUuid1);
+		senderUser.setUuid(userUuid1);
 		senderUser.setUsername(senderUsername);
 		
 		User recipientUser = new User();
 		String recipientUsername = ud.getUsername(userUuid2);
+		recipientUser.setUuid(userUuid2);
 		recipientUser.setUsername(recipientUsername);
 		
 		// User must be sender with status 1 (reject/cancel), or recipient with status 1 (reject) or 2 (approve)
