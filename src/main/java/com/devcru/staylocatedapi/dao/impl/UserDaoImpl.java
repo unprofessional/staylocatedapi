@@ -171,8 +171,8 @@ public class UserDaoImpl implements UserDao {
 		
 		boolean isSuccess = false;
 		
-		UUID senderUuid = null;
-		UUID recipientUuid = null;
+		UUID senderUuid = sender.getUuid();
+		UUID recipientUuid = recipient.getUuid();
 		
 		String sql = "UPDATE contact_requests SET status = ? WHERE sender_id = ? AND recipient_id = ?";
 		
