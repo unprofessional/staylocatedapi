@@ -222,6 +222,9 @@ public class UserController {
 						key = "Error";
 						message += ": Create Failure";
 					}
+				} else {
+					key = "Error";
+					message = "Accessor not allowed for this status code";
 				}
 				
 			} else {
