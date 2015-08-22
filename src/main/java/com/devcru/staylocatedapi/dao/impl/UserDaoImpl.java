@@ -177,10 +177,6 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("DaoImpl: senderUuid: " + senderUuid);
 		System.out.println("DaoImpl: recipientUuid: " + recipientUuid);
 		
-		System.out.println("DaoImpl: SQL statement to be executed: " +
-				"UPDATE contact_requests SET status = " + status + " WHERE sender_id = " +
-				senderUuid + " AND recipient_id = " + recipientUuid);
-		
 		String sql = "UPDATE contact_requests SET status = ? WHERE sender_id = ? AND recipient_id = ?";
 		
 		if(sender != null && recipient != null) {

@@ -171,14 +171,12 @@ public class UserController {
 		int status = contactRequest.getStatus();
 		System.out.println("DEBUG: status: " + status);
 		
-		// ???: if(status == 0 || status == 1 || status == 2) { Do stuff } else { return "Invalid status code" };
-		
+		String key = "OK";
+		String message = null;
+			
 		// TODO: REFACTOR ALL METHODS THAT APPLY!!! (this has officially become a problem)
 		// TODO: Should make use of the boolean return values in the UserDaoImpl methods...
 		// TODO: i.e. if(true){ message = "it worked"; } else { "it failed"; }
-		
-		String key = "OK"; // When we check for the above (boolean return), make this "Error"
-		String message = null;
 		
 		User senderUser = new User();
 		String senderUsername = ud.getUsername(userUuid1);
@@ -190,19 +188,48 @@ public class UserController {
 		recipientUser.setUuid(userUuid2);
 		recipientUser.setUsername(recipientUsername);
 		
-		// User must be sender with status 1 (reject/cancel), or recipient with status 1 (reject) or 2 (approve)
-		if(isSelf(senderUser) && status == 1) {
-			message = "Accessor is sender and originator of request with status 1, canceling request";
-			ud.updateContactRequest(status, senderUser, recipientUser);
-		} else if(isSelf(recipientUser) && status == 1) {
-			message = "Accessor is recipient of request with status 1, rejecting request";
-			ud.updateContactRequest(status, senderUser, recipientUser);
-		} else if(isSelf(recipientUser) && status == 2) {
-			message = "Accessor is recipient of request with status 2, approving request";
-			ud.updateContactRequest(status, senderUser, recipientUser);
-			ud.createContact(senderUser, recipientUser);
+		boolean isSender = isSelf(senderUser);
+		boolean isRecipient = isSelf(recipientUser);
+		boolean isAllowed = isSender ? isRecipient : false;
+		
+		if(isAllowed) {
+		
+			if (status == 1) {
+				if (isSender) {
+					message = "Accessor is originator of request with status 1, canceling request: ";
+				} else if (isRecipient) {
+					message = "Accessor is recipient of request with status 1, rejecting request: ";
+				}
+				if(ud.updateContactRequest(status, senderUser, recipientUser)) {
+					message += "Success";
+				} else {
+					key = "Error";
+					message += "Failure";
+				}					
+			} else if (status == 2) {
+				if (isSender) {
+					message = "Accessor is recipient of request with status 2, approving request: ";
+				}
+				if(ud.updateContactRequest(status, senderUser, recipientUser)) {
+					message += "Success";
+				} else {
+					key = "Error";
+					message += "Failure";
+				}
+				if(ud.createContact(senderUser, recipientUser)) {
+					message += "Success";
+				} else {
+					key = "Error";
+					message += "Failure";
+				}
+			} else {
+				key = "Error";
+				message = "Invalid status code";
+			}
+		
 		} else {
-			message = "Accessor is neither self nor recipient with an appropriate status code, doing nothing";
+			key = "Error";
+			message = "Request does not exist";
 		}
 		
 		return new JsonResponse(key, message);
