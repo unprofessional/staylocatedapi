@@ -173,10 +173,6 @@ public class UserController {
 		
 		String key = "OK";
 		String message = null;
-			
-		// TODO: REFACTOR ALL METHODS THAT APPLY!!! (this has officially become a problem)
-		// TODO: Should make use of the boolean return values in the UserDaoImpl methods...
-		// TODO: i.e. if(true){ message = "it worked"; } else { "it failed"; }
 		
 		User senderUser = new User();
 		String senderUsername = ud.getUsername(userUuid1);
@@ -202,28 +198,32 @@ public class UserController {
 				} else if (isRecipient) {
 					message = "Accessor is recipient of request with status 1, rejecting request: ";
 				}
+				// Execute update
 				if(ud.updateContactRequest(status, senderUser, recipientUser)) {
 					message += "Success";
 				} else {
 					key = "Error";
 					message += "Failure";
-				}					
+				}
 			} else if (status == 2) {
-				if (isSender) {
+				if (isRecipient) {
 					message = "Accessor is recipient of request with status 2, approving request: ";
+					// Execute update
+					if(ud.updateContactRequest(status, senderUser, recipientUser)) {
+						message += "Update Success";
+					} else {
+						key = "Error";
+						message += "Update Failure";
+					}
+					// Execute create
+					if(ud.createContact(senderUser, recipientUser)) {
+						message += ": Create Success";
+					} else {
+						key = "Error";
+						message += ": Create Failure";
+					}
 				}
-				if(ud.updateContactRequest(status, senderUser, recipientUser)) {
-					message += "Success";
-				} else {
-					key = "Error";
-					message += "Failure";
-				}
-				if(ud.createContact(senderUser, recipientUser)) {
-					message += "Success";
-				} else {
-					key = "Error";
-					message += "Failure";
-				}
+				
 			} else {
 				key = "Error";
 				message = "Invalid status code";
