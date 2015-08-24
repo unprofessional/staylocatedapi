@@ -2,10 +2,17 @@ package com.devcru.staylocatedapi.dao.impl;
 
 /*
  * XXX: Theory question(s):
- * Q1) We are assigning single values back to List<String> types on some queries while using String types on others -- which is better?
- * A1)   List<String> can absorb multiple values, while String can only do so for a single value
+ * Q1) We are assigning single values back to List<String> types on some queries while using String types
+ * 		on others -- which is better?
+ * A1) List<String> can absorb multiple values, while String can only do so for a single value
  * 
  * Q2) Should we look into finding a way to return message strings to place into the JsonResponse object?
+ * A2) For now, we can put this aside... the boolean isSuccess messages are sufficient enough.  Anything
+ * 		beyond this should probably be a Log4J thing... so find out how to make it work in Heroku!
+ * 
+ * Q3) Should we create our own custom ResultSetExtractor for the number of times we use it?
+ * A3) Yes, since ResultSetExtractor is necessary when using the template's query method which is allowed
+ * 		to return no results, as opposed to the queryFor* method which MUST return at least one result
  */
 
 import java.sql.ResultSet;
@@ -121,6 +128,8 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean createContactRequest(User user1, User user2) {
 		
+		// FIXME: Check if request exists, if so, do nothing
+		
 		String username1 = user1.getUsername();
 		String username2 = user2.getUsername();
 		
@@ -155,12 +164,6 @@ public class UserDaoImpl implements UserDao {
 		}
 		
 		return isSuccess;
-	}
-	
-	@Override
-	public boolean deleteContactRequest(User sender, User recipient) {
-		// Prune the request when it is no longer needed
-		return false;
 	}
 
 	@Override
@@ -198,15 +201,71 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean createContact(User requester, User accepter) {
 		
-		System.out.println("DaoImpl: Creating contact... (mock)");
+		boolean isSuccess = false;
 		
-		return false;
+		UUID requesterUuid = requester.getUuid();
+		UUID accepterUuid = accepter.getUuid();
+		
+		String sql = "INSERT INTO contacts (requester_id, accepter_id) VALUES(?, ?)";
+		
+		try {
+			template.update(sql, new Object[]{requesterUuid, accepterUuid});
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
+		
+		return isSuccess;
 	}
 
 	@Override
-	public boolean deleteContact(User sender, User recipient) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean deleteContact(User requester, User accepter) {
+		
+		boolean isSuccess = false;
+		
+		UUID requesterUuid = requester.getUuid();
+		UUID accepterUuid = accepter.getUuid();
+		
+		String sql = "DELETE FROM contacts WHERE requester_id = ? AND accepter_id = ?";
+		
+		// First check for a request (there should always be one if a contact relationship exists) and delete it
+		// Then delete the contact relationship if this was successful
+		// Else do nothing if no request exists
+		if(deleteContactRequest(requester, accepter)) {
+			try {
+				template.update(sql, new Object[]{requesterUuid, accepterUuid});
+				isSuccess = true;
+			} catch (DataAccessException e) {
+				e.printStackTrace();
+				isSuccess = false;
+			}
+		} else {
+			isSuccess = false;
+		}
+		
+		return isSuccess;
+	}
+	
+	// Tied to the deleteContact method for now... potential use from other methods later...
+	public boolean deleteContactRequest(User sender, User recipient) {
+		
+		boolean isSuccess = false;
+		
+		UUID senderUuid = sender.getUuid();
+		UUID recipientUuid = recipient.getUuid();
+		
+		String sql = "DELETE FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
+		
+		try {
+			template.update(sql, new Object[]{senderUuid, recipientUuid});
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
+		
+		return isSuccess;
 	}
 	
 	/*

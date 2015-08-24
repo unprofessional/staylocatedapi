@@ -168,6 +168,8 @@ public class UserController {
 	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2,
 			@RequestBody ContactRequest contactRequest) {
 		
+		// FIXME: Check if request exists first
+		
 		int status = contactRequest.getStatus();
 		System.out.println("DEBUG: status: " + status);
 		
@@ -192,6 +194,7 @@ public class UserController {
 		
 		if(isSender || isRecipient) {
 		
+			// switch/case (status) maybe?
 			if (status == 1) {
 				if (isSender) {
 					message = "Accessor is originator of request with status 1, canceling request: ";
@@ -216,6 +219,7 @@ public class UserController {
 						message += "Update Failure";
 					}
 					// Execute create
+					// FIXME: This could potentially create another entry if another request is sent and approved...
 					if(ud.createContact(senderUser, recipientUser)) {
 						message += ": Create Success";
 					} else {
@@ -242,16 +246,32 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
-	JsonResponse deleteContact(@PathVariable("uuid") String userUuid, String userUuid2, @RequestBody User user) {
-		System.out.println("deleteContact() -- delete request or contact");
-		// delete request or contact (only if self)
-		return new JsonResponse("OK", "deleteContact()");
+	JsonResponse deleteContact(@PathVariable("uuid") UUID userUuid1, UUID userUuid2, @RequestBody User user) {
+		// delete contact and/or (only if self)
+		
+		String key = "OK";
+		String message = null;
+		
+		User senderUser = new User();
+		String senderUsername = ud.getUsername(userUuid1);
+		senderUser.setUuid(userUuid1);
+		senderUser.setUsername(senderUsername);
+		
+		User recipientUser = new User();
+		String recipientUsername = ud.getUsername(userUuid2);
+		recipientUser.setUuid(userUuid2);
+		recipientUser.setUsername(recipientUsername);
+		
+		// Delete Contact and Request
+		if(ud.deleteContact(senderUser, recipientUser)) {
+			message = "Delete Success";
+		} else {
+			key = "Error";
+			message = "Delete Failure";
+		}
+		
+		return new JsonResponse(key, message);
 	}
-	
-	// TODO: Figure out how to add the delete Contacts method (due to two uuid variables)
-	// Do we daisy chain them as independently managed resources?
-	// i.e. /user/{uuid} + /contacts/{uuid}
-	// Does this mean profile and contacts will each have to be their own base URL?
 	
 	// ???: Is this method necessary with exclusive OAuth2?
 	@RequestMapping(value = "/credentials", method=RequestMethod.POST)
