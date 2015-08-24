@@ -168,7 +168,7 @@ public class UserController {
 	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2,
 			@RequestBody ContactRequest contactRequest) {
 		
-		// FIXME: Check if request exists first
+		// FIXME: Determine if request exists first
 		
 		int status = contactRequest.getStatus();
 		System.out.println("DEBUG: status: " + status);
@@ -247,27 +247,37 @@ public class UserController {
 	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteContact(@PathVariable("uuid") UUID userUuid1, UUID userUuid2, @RequestBody User user) {
-		// delete contact and/or (only if self)
+		
+		// FIXME: Determine if contact relationship exists first
 		
 		String key = "OK";
 		String message = null;
 		
-		User senderUser = new User();
-		String senderUsername = ud.getUsername(userUuid1);
-		senderUser.setUuid(userUuid1);
-		senderUser.setUsername(senderUsername);
+		User requesterUser = new User();
+		String requesterUsername = ud.getUsername(userUuid1);
+		requesterUser.setUuid(userUuid1);
+		requesterUser.setUsername(requesterUsername);
 		
-		User recipientUser = new User();
-		String recipientUsername = ud.getUsername(userUuid2);
-		recipientUser.setUuid(userUuid2);
-		recipientUser.setUsername(recipientUsername);
+		User accepterUser = new User();
+		String accepterUsername = ud.getUsername(userUuid2);
+		accepterUser.setUuid(userUuid2);
+		accepterUser.setUsername(accepterUsername);
 		
-		// Delete Contact and Request
-		if(ud.deleteContact(senderUser, recipientUser)) {
-			message = "Delete Success";
-		} else {
-			key = "Error";
-			message = "Delete Failure";
+		boolean isRequester = isSelf(requesterUser);
+		boolean isAccepter = isSelf(accepterUser);
+		
+		System.out.println("isSender: " + isRequester);
+		System.out.println("isRecipient: " + isAccepter);
+		
+		// Must be 
+		if(isRequester || isAccepter) {
+			// Delete Contact and Request
+			if(ud.deleteContact(requesterUser, accepterUser)) {
+				message = "Delete Success";
+			} else {
+				key = "Error";
+				message = "Delete Failure";
+			}
 		}
 		
 		return new JsonResponse(key, message);
