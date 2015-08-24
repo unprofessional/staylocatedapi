@@ -246,7 +246,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
-	JsonResponse deleteContact(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2, @RequestBody User user) {
+	JsonResponse deleteContact(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2) {
 		
 		// FIXME: Determine if contact relationship exists first
 		
