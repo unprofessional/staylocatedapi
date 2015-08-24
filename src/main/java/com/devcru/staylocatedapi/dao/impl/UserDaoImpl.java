@@ -231,7 +231,7 @@ public class UserDaoImpl implements UserDao {
 		
 		// First check for a request (there should always be one if a contact relationship exists) and delete it
 		// Then delete the contact relationship if this was successful
-		// Else do nothing if no request exists
+		// Else do nothing if no request exists, thus enforcing atomicity
 		if(deleteContactRequest(requester, accepter)) {
 			try {
 				template.update(sql, new Object[]{requesterUuid, accepterUuid});

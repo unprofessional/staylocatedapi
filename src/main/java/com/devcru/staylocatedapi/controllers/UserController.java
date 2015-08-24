@@ -163,9 +163,9 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.PUT)
+	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse approveRequest(@PathVariable("uuid") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2,
+	JsonResponse approveRequest(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2,
 			@RequestBody ContactRequest contactRequest) {
 		
 		// FIXME: Determine if request exists first
@@ -244,9 +244,9 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	@RequestMapping(value="/{uuid}/contacts/{uuid2}", method=RequestMethod.DELETE)
+	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
-	JsonResponse deleteContact(@PathVariable("uuid") UUID userUuid1, UUID userUuid2, @RequestBody User user) {
+	JsonResponse deleteContact(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2, @RequestBody User user) {
 		
 		// FIXME: Determine if contact relationship exists first
 		
@@ -269,7 +269,7 @@ public class UserController {
 		System.out.println("isSender: " + isRequester);
 		System.out.println("isRecipient: " + isAccepter);
 		
-		// Must be 
+		// Must be requester or accepter (i.e. involved in the relationship) to cut ties
 		if(isRequester || isAccepter) {
 			// Delete Contact and Request
 			if(ud.deleteContact(requesterUser, accepterUser)) {
