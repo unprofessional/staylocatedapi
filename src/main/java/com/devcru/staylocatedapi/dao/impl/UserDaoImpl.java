@@ -134,7 +134,8 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean createContactRequest(User user1, User user2) {
 		
-		// FIXME: Check if request exists, if so, do nothing
+		// !!! FIXME !!!: Check if request exists, if so, do nothing!
+		// else this will attempt to write an exact-duplicate record and fail on the DB side
 		
 		String username1 = user1.getUsername();
 		String username2 = user2.getUsername();
@@ -379,8 +380,7 @@ public class UserDaoImpl implements UserDao {
 		
 		String sql = "SELECT * FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
 		
-		String results1 = null;
-		String results2 = null;
+		String results1 = null, results2 = null;
 		
 		try {
 			results1 = template.query(sql, new Object[]{uuid1, uuid2}, rse);
@@ -388,6 +388,9 @@ public class UserDaoImpl implements UserDao {
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("results1: " + results1);
+		System.out.println("results2: " + results2);
 		
 		// If two NOT NULLs are caught, then a duplicate relationship was found
 		if(!results1.isEmpty() && !results2.isEmpty() || results1 != null && results2 != null) {
