@@ -112,6 +112,7 @@ public class UserController {
 	public @ResponseBody
 	JsonResponse createContactRequest(@PathVariable("uuid") UUID senderUuid, @RequestBody User recipientUser) {
 		// User must be self to make a contact request, else this does nothing
+		String key = "OK";
 		String message = "";
 		
 		User senderUser = new User();
@@ -131,12 +132,13 @@ public class UserController {
 			message = "Accessor is self, creating contact request";
 			ud.createContactRequest(senderUser, recipientUser);
 		} else {
+			key = "Error";
 			message = "Accessor is not self, doing nothing";
 		}
 		
 		System.out.println(message);
 		
-		return new JsonResponse("OK", message);
+		return new JsonResponse(key, message);
 	}
 	
 	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.GET)
@@ -168,77 +170,88 @@ public class UserController {
 	JsonResponse approveRequest(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2,
 			@RequestBody ContactRequest contactRequest) {
 		
-		// FIXME: Determine if request exists first
-		
 		int status = contactRequest.getStatus();
 		System.out.println("DEBUG: status: " + status);
 		
 		String key = "OK";
 		String message = null;
 		
-		User senderUser = new User();
-		String senderUsername = ud.getUsername(userUuid1);
-		senderUser.setUuid(userUuid1);
-		senderUser.setUsername(senderUsername);
-		
-		User recipientUser = new User();
-		String recipientUsername = ud.getUsername(userUuid2);
-		recipientUser.setUuid(userUuid2);
-		recipientUser.setUsername(recipientUsername);
-		
-		boolean isSender = isSelf(senderUser);
-		boolean isRecipient = isSelf(recipientUser);
-		
-		System.out.println("isSender: " + isSender);
-		System.out.println("isRecipient: " + isRecipient);
-		
-		if(isSender || isRecipient) {
-		
-			// switch/case (status) maybe?
-			if (status == 1) {
-				if (isSender) {
-					message = "Accessor is originator of request with status 1, canceling request: ";
-				} else if (isRecipient) {
-					message = "Accessor is recipient of request with status 1, rejecting request: ";
-				}
-				// Execute update
-				if(ud.updateContactRequest(status, senderUser, recipientUser)) {
-					message += "Update Success";
-				} else {
-					key = "Error";
-					message += "Update Failure";
-				}
-			} else if (status == 2) {
-				if (isRecipient) {
-					message = "Accessor is recipient of request with status 2, approving request: ";
-					// Execute update (Need to enforce ACIDity with create execution)
-					if(ud.updateContactRequest(status, senderUser, recipientUser)) {
+		if(ud.checkContactRequestExists(userUuid1, userUuid2)) {
+			
+			User senderUser = new User();
+			String senderUsername = ud.getUsername(userUuid1);
+			senderUser.setUuid(userUuid1);
+			senderUser.setUsername(senderUsername);
+			
+			User recipientUser = new User();
+			String recipientUsername = ud.getUsername(userUuid2);
+			recipientUser.setUuid(userUuid2);
+			recipientUser.setUsername(recipientUsername);
+			
+			boolean isSender = isSelf(senderUser);
+			boolean isRecipient = isSelf(recipientUser);
+			
+			System.out.println("isSender: " + isSender);
+			System.out.println("isRecipient: " + isRecipient);
+			
+			if(isSender || isRecipient) {
+				
+				switch (status) {
+				case 1:
+					if (isSender) {
+						message = "Accessor is originator of request with status 1, canceling request: ";
+					} else if (isRecipient) {
+						message = "Accessor is recipient of request with status 1, rejecting request: ";
+					}
+					// Execute update
+					if (ud.updateContactRequest(status, senderUser,
+							recipientUser)) {
 						message += "Update Success";
 					} else {
 						key = "Error";
 						message += "Update Failure";
 					}
-					// Execute create
-					// FIXME: This could potentially create another entry if another request is sent and approved...
-					if(ud.createContact(senderUser, recipientUser)) {
-						message += ": Create Success";
+					break;
+					
+				case 2:
+					if (isRecipient) {
+						message = "Accessor is recipient of request with status 2, approving request: ";
+						// Execute update (Need to enforce ACIDity with create execution)
+						if (ud.updateContactRequest(status, senderUser,
+								recipientUser)) {
+							message += "Update Success";
+						} else {
+							key = "Error";
+							message += "Update Failure";
+						}
+						// Execute create
+						// FIXME: This could potentially create another entry if another request is sent and approved...
+						if (ud.createContact(senderUser, recipientUser)) {
+							message += ": Create Success";
+						} else {
+							key = "Error";
+							message += ": Create Failure";
+						}
 					} else {
 						key = "Error";
-						message += ": Create Failure";
+						message = "Accessor not allowed for this status code";
 					}
-				} else {
+					break;
+					
+				default:
 					key = "Error";
-					message = "Accessor not allowed for this status code";
+					message = "Invalid status code";
+					break;
 				}
-				
+			
 			} else {
 				key = "Error";
-				message = "Invalid status code";
+				message = "Accessors are neither sender nor recipient";
 			}
-		
+			
 		} else {
 			key = "Error";
-			message = "Request does not exist";
+			message = "Contact request does not exist";
 		}
 		
 		return new JsonResponse(key, message);

@@ -38,6 +38,15 @@ public class UserDaoImpl implements UserDao {
 	@Autowired
 	@Qualifier("dataSource")
 	public void setDataSource(DataSource ds) { this.template = new JdbcTemplate(ds); }
+	
+	// For all of the queries
+	ResultSetExtractor<String> rse = new ResultSetExtractor<String>() {
+		@Override
+		public String extractData(ResultSet rs) throws SQLException,
+				DataAccessException {
+			return (rs.next() ? rs.getString(1) : null);
+		}
+	};
 
 	@Override
 	public boolean insertUser(User user) {
@@ -84,10 +93,7 @@ public class UserDaoImpl implements UserDao {
 		
 		try {
 			// Retrieve encodedPassword from storage
-			encodedPassword = (String) template.queryForObject(sql,
-					new Object[] {username},
-					String.class
-					);
+			encodedPassword = template.query(sql, new Object[] {username}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
@@ -279,15 +285,7 @@ public class UserDaoImpl implements UserDao {
 		String results = null;
 		
 		try {
-			results = (String) template.query(sql,
-					new Object[]{username},
-					new ResultSetExtractor<String>() {
-				@Override
-				public String extractData(ResultSet rs) throws SQLException,
-						DataAccessException {
-					return rs.next() ? rs.getString(1) : null;
-				}
-				});
+			results = (String) template.query(sql, new Object[]{username}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
@@ -309,15 +307,7 @@ public class UserDaoImpl implements UserDao {
 		String sql = "SELECT uuid FROM users WHERE username = ?";
 		
 		try {
-			uuid = (String) template.query(sql,
-					new Object[]{username},
-					new ResultSetExtractor<String>() {
-				@Override
-				public String extractData(ResultSet rs) throws SQLException,
-						DataAccessException {
-					return rs.next() ? rs.getString(1) : null;
-				}
-				});
+			uuid = (String) template.query(sql, new Object[]{username}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -340,15 +330,7 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("DEBUG: userUuid.toString(): " + userUuid.toString());
 
 		try {
-			username = (String) template.query(sql,
-					new Object[]{userUuid},
-					new ResultSetExtractor<String>() {
-				@Override
-				public String extractData(ResultSet rs) throws SQLException,
-						DataAccessException {
-					return rs.next() ? rs.getString(1) : null;
-				}
-				});
+			username = (String) template.query(sql, new Object[]{userUuid}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -373,7 +355,7 @@ public class UserDaoImpl implements UserDao {
 					new Object[] { userUuid1, userUuid2 },
 					new ResultSetExtractor<Integer>() {
 						@Override
-						public Integer extractData(ResultSet rs)
+						public Integer extractData(ResultSet rs) // custom because we need an integer
 								throws SQLException, DataAccessException {
 							return (rs.next() ? rs.getInt(1) : -99); // -99 = Request doesn't exist
 						}
@@ -385,6 +367,40 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("DEBUG: status: " + status);
 		
 		return status;
+	}
+	
+	@Override
+	public boolean checkContactRequestExists(UUID uuid1, UUID uuid2) {
+		
+		String sql = "SELECT * FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
+		
+		String results1 = null;
+		String results2 = null;
+		
+		/*
+		 * The relationship needs to be checked both ways to prevent
+		 * inverse-relationship duplicates.
+		 * 
+		 * A standard use-case will always have one NOT NULL and one NULL.
+		 * If two NOT NULLs are caught, then a duplicate was found.
+		 * If two NULLs are found, then no request exists.
+		 */
+		try {
+			results1 = template.query(sql, new Object[]{uuid1, uuid2}, rse);
+			results2 = template.query(sql, new Object[]{uuid2, uuid1}, rse);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		// if(both results come back empty/null) { return false; }
+		// this implies that if either result has a result, then the request and its inverse exists
+		if((results1.isEmpty() && results2.isEmpty()) || (results1 == null && results2 == null)) {
+			System.out.println("Query results are empty or null!");
+			return false;
+		} else {
+			return true;
+		}
+		
 	}
 	
 //	public User getUser(String userUuid) {
