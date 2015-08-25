@@ -393,13 +393,13 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("results2: " + results2);
 		
 		// If two NOT NULLs are caught, then a duplicate relationship was found
-		if(!results1.isEmpty() && !results2.isEmpty() || results1 != null && results2 != null) {
+		if((null != results1 && null != results2) || (!results1.isEmpty() && !results2.isEmpty())) {
 			System.out.println("!!! WARNING !!!: Duplicate records found!  Check table integrity...");
 			// technically, however, the request(s) exist, so this is implicitly true
 		}
 		
 		// If two NULLs are found, then no request exists
-		if((results1.isEmpty() && results2.isEmpty()) || (results1 == null && results2 == null)) {
+		if((null == results1 && null == results2) || (results1.isEmpty() && results2.isEmpty())) {
 			System.out.println("Query results are empty or null!  No request exists!");
 			return false;
 		} else {
