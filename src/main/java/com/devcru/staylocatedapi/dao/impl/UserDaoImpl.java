@@ -372,19 +372,16 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean checkContactRequestExists(UUID uuid1, UUID uuid2) {
 		
+		// NOTE: duplicate relationships (requests) are found when a request exists AND its
+		// inverse-relationship of the uuid's exist.
+		// i.e. a row that has {sender_id:sam, recipient_id:tom}
+		// and another tow that has {sender_id:tom, recipient_id:sam}
+		
 		String sql = "SELECT * FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
 		
 		String results1 = null;
 		String results2 = null;
 		
-		/*
-		 * The relationship needs to be checked both ways to prevent
-		 * inverse-relationship duplicates.
-		 * 
-		 * A standard use-case will always have one NOT NULL and one NULL.
-		 * If two NOT NULLs are caught, then a duplicate was found.
-		 * If two NULLs are found, then no request exists.
-		 */
 		try {
 			results1 = template.query(sql, new Object[]{uuid1, uuid2}, rse);
 			results2 = template.query(sql, new Object[]{uuid2, uuid1}, rse);
@@ -392,12 +389,19 @@ public class UserDaoImpl implements UserDao {
 			e.printStackTrace();
 		}
 		
-		// if(both results come back empty/null) { return false; }
-		// this implies that if either result has a result, then the request and its inverse exists
+		// If two NOT NULLs are caught, then a duplicate relationship was found
+		if(!results1.isEmpty() && !results2.isEmpty() || results1 != null && results2 != null) {
+			System.out.println("!!! WARNING !!!: Duplicate records found!  Check table integrity...");
+			// technically, however, the request(s) exist, so this is implicitly true
+		}
+		
+		// If two NULLs are found, then no request exists
 		if((results1.isEmpty() && results2.isEmpty()) || (results1 == null && results2 == null)) {
-			System.out.println("Query results are empty or null!");
+			System.out.println("Query results are empty or null!  No request exists!");
 			return false;
 		} else {
+			// else a standard use-case will always have one NOT NULL and one NULL
+			System.out.println("Request found!");
 			return true;
 		}
 		
