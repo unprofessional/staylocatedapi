@@ -74,7 +74,6 @@ public class UserController {
 		return new JsonResponse("OK", "getAccountDetails()");
 	}
 	
-	// TODO: Determine if User is necessary in all methods
 	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteUser(@PathVariable("uuid") String userUuid, @RequestBody User user) {
@@ -111,7 +110,7 @@ public class UserController {
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse createContactRequest(@PathVariable("uuid") UUID senderUuid, @RequestBody User recipientUser) {
-		// User must be self to make a contact request, else this does nothing
+		
 		String key = "OK";
 		String message = "";
 		
@@ -128,6 +127,7 @@ public class UserController {
 		System.out.println("DEBUG: senderUsername: " + senderUsername);
 		System.out.println("DEBUG: senderUser.getUsername(): " + senderUser.getUsername());
 		
+		// User must be self to make a contact request, else this does nothing
 		if(isSelf(senderUser)) {
 			message = "Accessor is self, creating contact request";
 			ud.createContactRequest(senderUser, recipientUser);
@@ -144,7 +144,6 @@ public class UserController {
 	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getRequestState(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2) {
-		// User must be self AND sender to make view own contact request status, else this does nothing
 		// Should return: 0 (pending), 1 (denied), 2 (approved), or -1 (no request)
 		String key = null;
 		String message = null;
@@ -153,6 +152,7 @@ public class UserController {
 		String senderUsername = ud.getUsername(userUuid1);
 		senderUser.setUsername(senderUsername);
 		
+		// User must be self AND sender to view own contact request status, else this does nothing
 		if(isSelf(senderUser)) {
 			key = "ContactRequestStatus";
 			message = "" + ud.getContactRequestStatus(userUuid1, userUuid2);
@@ -175,8 +175,6 @@ public class UserController {
 		
 		String key = "OK";
 		String message = null;
-		
-		if(ud.checkContactRequestExists(userUuid1, userUuid2)) {
 			
 			User senderUser = new User();
 			String senderUsername = ud.getUsername(userUuid1);
@@ -196,62 +194,54 @@ public class UserController {
 			
 			if(isSender || isRecipient) {
 				
-				switch (status) {
-				case 1:
-					if (isSender) {
-						message = "Accessor is originator of request with status 1, canceling request: ";
-					} else if (isRecipient) {
-						message = "Accessor is recipient of request with status 1, rejecting request: ";
-					}
+			switch (status) {
+			case 1:
+				if (isSender) {
+					message = "Accessor is originator of request with status 1, canceling request: ";
+				} else if (isRecipient) {
+					message = "Accessor is recipient of request with status 1, rejecting request: ";
+				}
+				// Execute update
+				if (ud.updateContactRequest(status, senderUser, recipientUser)) {
+					message += "Update Success";
+				} else {
+					key = "Error";
+					message += "Update Failure";
+				}
+				break;
+				
+			case 2:
+				if (isRecipient) {
+					message = "Accessor is recipient of request with status 2, approving request: ";
 					// Execute update
-					if (ud.updateContactRequest(status, senderUser,
-							recipientUser)) {
+					if (ud.updateContactRequest(status, senderUser, recipientUser)) {
 						message += "Update Success";
 					} else {
 						key = "Error";
 						message += "Update Failure";
 					}
-					break;
-					
-				case 2:
-					if (isRecipient) {
-						message = "Accessor is recipient of request with status 2, approving request: ";
-						// Execute update (Need to enforce ACIDity with create execution)
-						if (ud.updateContactRequest(status, senderUser,
-								recipientUser)) {
-							message += "Update Success";
-						} else {
-							key = "Error";
-							message += "Update Failure";
-						}
-						// Execute create
-						// FIXME: This could potentially create another entry if another request is sent and approved...
-						if (ud.createContact(senderUser, recipientUser)) {
-							message += ": Create Success";
-						} else {
-							key = "Error";
-							message += ": Create Failure";
-						}
+					// Execute create
+					if (ud.createContact(senderUser, recipientUser)) {
+						message += ": Create Success";
 					} else {
 						key = "Error";
-						message = "Accessor not allowed for this status code";
+						message += ": Create Failure";
 					}
-					break;
-					
-				default:
+				} else {
 					key = "Error";
-					message = "Invalid status code";
-					break;
+					message = "Accessor not allowed for this status code";
 				}
-			
-			} else {
+				break;
+				
+			default:
 				key = "Error";
-				message = "Accessors are neither sender nor recipient";
+				message = "Invalid status code";
+				break;
 			}
-			
+		
 		} else {
 			key = "Error";
-			message = "Contact request does not exist";
+			message = "Accessors are neither sender nor recipient";
 		}
 		
 		return new JsonResponse(key, message);
@@ -260,8 +250,6 @@ public class UserController {
 	@RequestMapping(value="/{uuid1}/contacts/{uuid2}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteContact(@PathVariable("uuid1") UUID userUuid1, @PathVariable("uuid2") UUID userUuid2) {
-		
-		// FIXME: Determine if contact relationship exists first
 		
 		String key = "OK";
 		String message = null;
@@ -334,8 +322,10 @@ public class UserController {
 		return "Hello world";
 	}
 	
-	// Helper methods (Move to Utils?)
-	// Would this be safer to pass in a String username instead?
+	/* 
+	 * Helper methods (Move to Utils?)
+	 * Would this be safer to pass in a String username instead?
+	 */
 	public boolean isSelf(User user) {
 		
 		System.out.println("DEBUG: user.getUsername(): " + user.getUsername());

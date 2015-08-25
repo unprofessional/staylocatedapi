@@ -13,10 +13,15 @@ package com.devcru.staylocatedapi.dao.impl;
  * Q3) Should we create our own custom ResultSetExtractor for the number of times we use it?
  * A3) Yes, since ResultSetExtractor is necessary when using the template's query method which is allowed
  * 		to return no results, as opposed to the queryFor* method which MUST return at least one result
+ * 
+ * Q4) We are enforcing some atomicity logic here (i.e. ensure there are no request relationship duplicates).
+ * 		Should we offload this logic to the Controller side?  Does it classify as business logic?
+ * A4) My intuition tells me that ensuring atomicity is a data layer concern and, as such, remain in the DAO
  */
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -39,7 +44,8 @@ public class UserDaoImpl implements UserDao {
 	@Qualifier("dataSource")
 	public void setDataSource(DataSource ds) { this.template = new JdbcTemplate(ds); }
 	
-	// For all of the queries
+	// To be used for all query() calls since they allow for possible null returns
+	// whereas queryForWhatever() does not
 	ResultSetExtractor<String> rse = new ResultSetExtractor<String>() {
 		@Override
 		public String extractData(ResultSet rs) throws SQLException,
@@ -121,7 +127,14 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public boolean deleteUser(User user) {
-		// TODO Auto-generated method stub
+		// TODO: Delete EVERYTHING to ensure data integrity.  Use a cascading SQL statement.
+		/*
+		 * Checklist -- delete from:
+		 * 1) users
+		 * 2) contact_requests
+		 * 3) contacts
+		 */
+		
 		return false;
 	}
 
@@ -133,9 +146,6 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public boolean createContactRequest(User user1, User user2) {
-		
-		// !!! FIXME !!!: Check if request exists, if so, do nothing!
-		// else this will attempt to write an exact-duplicate record and fail on the DB side
 		
 		String username1 = user1.getUsername();
 		String username2 = user2.getUsername();
@@ -150,24 +160,32 @@ public class UserDaoImpl implements UserDao {
 		String sql = "INSERT INTO contact_requests (sender_id, recipient_id, status)"
 				+ "VALUES(?, ?, ?)";
 		
-		if(checkUserExists(username1) && checkUserExists(username2)) {
-			try {
-				// status codes: 0 (pending), 1 (rejected), 2 (accepted)
-				template.update(sql, new Object[]{senderUuid, recipientUuid, 0});
-				isSuccess = true;
-			} catch (DataAccessException e) {
-				e.printStackTrace();
+		// Check if request (and its inverse) exists, if not, go ahead and create it
+		if(!checkContactRequestExists(senderUuid, recipientUuid)) {
+		
+			// Check if the users exist, if even one doesn't, do nothing
+			if(checkUserExists(username1) && checkUserExists(username2)) {
+				try {
+					// status codes: 0 (pending), 1 (rejected), 2 (accepted)
+					template.update(sql, new Object[]{senderUuid, recipientUuid, 0});
+					isSuccess = true;
+				} catch (DataAccessException e) {
+					e.printStackTrace();
+					isSuccess = false;
+				}
+			} else if (!checkUserExists(username1) && !checkUserExists(username2)){
 				isSuccess = false;
+				System.out.println("username1 AND username2 both not found1");
+			} else if (!checkUserExists(username1)){
+				isSuccess = false;
+				System.out.println("username1 not found!");
+			} else if (!checkUserExists(username2)) {
+				isSuccess = false;
+				System.out.println("username2 not found!");
 			}
-		} else if (!checkUserExists(username1) && !checkUserExists(username2)){
-			isSuccess = false;
-			System.out.println("username1 AND username2 both not found1");
-		} else if (!checkUserExists(username1)){
-			isSuccess = false;
-			System.out.println("username1 not found!");
-		} else if (!checkUserExists(username2)) {
-			isSuccess = false;
-			System.out.println("username2 not found!");
+		
+		} else {
+			System.out.println("The request already exists, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -199,7 +217,6 @@ public class UserDaoImpl implements UserDao {
 			}
 		} else {
 			System.out.println("DaoImpl: sender or recipient are NULL, doing nothing");
-			isSuccess = false;
 		}
 		
 		return isSuccess;
@@ -210,17 +227,39 @@ public class UserDaoImpl implements UserDao {
 		
 		boolean isSuccess = false;
 		
+		String requesterUsername = requester.getUsername();
+		String accepterUsername = accepter.getUsername();
+		
 		UUID requesterUuid = requester.getUuid();
 		UUID accepterUuid = accepter.getUuid();
 		
 		String sql = "INSERT INTO contacts (requester_id, accepter_id) VALUES(?, ?)";
 		
-		try {
-			template.update(sql, new Object[]{requesterUuid, accepterUuid});
-			isSuccess = true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
-			isSuccess = false;
+		// Check if contact relationship exists, if not, go ahead and create it
+		if(!checkContactExists(requesterUuid, accepterUuid)) {
+		
+			// Check if the users exist, if even one doesn't, do nothing
+			if(checkUserExists(requesterUsername) && checkUserExists(accepterUsername)) {
+				try {
+					template.update(sql, new Object[]{requesterUuid, accepterUuid});
+					isSuccess = true;
+				} catch (DataAccessException e) {
+					e.printStackTrace();
+					isSuccess = false;
+				}
+			} else if (!checkUserExists(requesterUsername) && !checkUserExists(accepterUsername)){
+				isSuccess = false;
+				System.out.println("requesterUsername AND accepterUsername both not found1");
+			} else if (!checkUserExists(requesterUsername)){
+				isSuccess = false;
+				System.out.println("requesterUsername not found!");
+			} else if (!checkUserExists(accepterUsername)) {
+				isSuccess = false;
+				System.out.println("accepterUsername not found!");
+			}
+		
+		} else {
+			System.out.println("The contact relationship already exists, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -236,9 +275,9 @@ public class UserDaoImpl implements UserDao {
 		
 		String sql = "DELETE FROM contacts WHERE requester_id = ? AND accepter_id = ?";
 		
-		// First check for a request (there should always be one if a contact relationship exists) and delete it
-		// Then delete the contact relationship if this was successful
-		// Else do nothing if no request exists, thus enforcing atomicity
+		// First check if request exists (should always if contact exists) and delete it if so
+		// if request deleted, then delete contact relationship as well
+		// else do nothing if no request exists
 		if(deleteContactRequest(requester, accepter)) {
 			try {
 				template.update(sql, new Object[]{requesterUuid, accepterUuid});
@@ -356,7 +395,7 @@ public class UserDaoImpl implements UserDao {
 					new Object[] { userUuid1, userUuid2 },
 					new ResultSetExtractor<Integer>() {
 						@Override
-						public Integer extractData(ResultSet rs) // custom because we need an integer
+						public Integer extractData(ResultSet rs) // custom because Integer return type
 								throws SQLException, DataAccessException {
 							return (rs.next() ? rs.getInt(1) : -99); // -99 = Request doesn't exist
 						}
@@ -373,10 +412,16 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean checkContactRequestExists(UUID uuid1, UUID uuid2) {
 		
-		// NOTE: duplicate relationships (requests) are found when a request exists AND its
-		// inverse-relationship of the uuid's exist.
-		// i.e. a row that has {sender_id:sam, recipient_id:tom}
-		// and another tow that has {sender_id:tom, recipient_id:sam}
+		/* 
+		 * NOTE: "duplicate relationships" (requests) are found when a request exists AND its
+		 * inverse-relationship of the uuid's exist.
+		 * 
+		 * i.e. a row that has {sender_id:sam, recipient_id:tom}
+		 * and another row that has {sender_id:tom, recipient_id:sam}
+		 * 
+		 * It doesn't make sense to have a request come from one person and the other person able to
+		 * send another request back -- recipient should only be allowed to reject or accept
+		 */
 		
 		String sql = "SELECT * FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
 		
@@ -410,25 +455,91 @@ public class UserDaoImpl implements UserDao {
 		
 	}
 	
-//	public User getUser(String userUuid) {
-//		
-//		User user = new User();
-//		
-//		String sql = "SELECT  * FROM users WHERE uuid = ?";
-//		
-//		String userString = template.query(sql,
-//				new Object[]{userUuid},
-//				new ResultSetExtractor<String>() {
-//				@Override
-//				public String extractData(ResultSet rs) throws SQLException,
-//						DataAccessException {
-//					return rs.next() ? rs.getString(1) : null;
-//				}
-//				});
-//		
-//		System.out.println("userString: " + userString);
-//		
-//		return user;
-//	}
+	@Override
+	public boolean checkContactExists(UUID uuid1, UUID uuid2) {
+		
+		/* 
+		 * NOTE: "duplicate relationships" (requests) are found when a contact exists AND its
+		 * inverse-relationship of the uuid's exist.
+		 * 
+		 * i.e. a row that has {requester_id:sam, accepter_id:tom}
+		 * and another row that has {requester_id:tom, accepter_id:sam}
+		 * 
+		 * It doesn't make sense to have two contacts entries both saying the same thing
+		 */
+		
+		String sql = "SELECT * FROM contacts WHERE requester_id = ? AND accepter_id = ?";
+		
+		String results1 = null, results2 = null;
+		
+		try {
+			results1 = template.query(sql, new Object[]{uuid1, uuid2}, rse);
+			results2 = template.query(sql, new Object[]{uuid2, uuid1}, rse);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		// If two NOT NULLs are caught, then a duplicate relationship was found
+		if(null != results1 && null != results2) {
+			System.out.println("!!! WARNING !!!: Duplicate records found!  Check table integrity...");
+			// technically, however, the contacts(s) exist, so this is implicitly true
+		}
+		
+		// If two NULLs are found, then no contact relationship exists
+		if((null == results1 && null == results2) || (results1.isEmpty() && results2.isEmpty())) {
+			System.out.println("Query results are empty or null!  No contact relationship exists!");
+			return false;
+		} else {
+			// else a standard use-case will always have one NOT NULL and one NULL
+			System.out.println("Contact relationship found!");
+			return true;
+		}
+		
+	}
+	
+	/*public User getUser(User user) {
+		// If we can identify any user information, run a query based on that
+		// and return the entire user data object
+		String email = user.getEmail();
+		String username = user.getUsername();
+		UUID uuid = user.getUuid();
+		
+		System.out.println("DaoImpl: uuid: " + uuid);
+		System.out.println("DaoImpl: username: " + username);
+		System.out.println("DaoImpl: email: " + email);
+		
+		String sql = "";
+		List<String> results = null;
+		
+		int field = 0;
+		
+		if(uuid != null) {
+			field = 1;
+			System.out.println("uuid not null");
+			sql = "SELECT  * FROM users WHERE uuid = ?";
+		} else if (username != null) {
+			field = 2;
+			System.out.println("username not null");
+			sql = "SELECT * FROM users WHERE username = ?";
+		} else if (email != null) {
+			field = 3;
+			System.out.println("email not null");
+			sql = "SELECT * FROM users WHERE email = ?";
+		} else {
+			System.out.println("No identifying information for the user, returning null...");
+			return null;
+		}
+		// FIXME: Need to check for null returns
+		results = template.queryForList(sql, new Object[]{(
+					field == 1 ? uuid :
+						(field == 2 ? username : email)
+					)}, String.class);
+		
+		for(String i : results) {
+			// map results to user fields
+		}
+		
+		return user;
+	}*/
 
 }

@@ -43,6 +43,6 @@ public interface UserDao {
 	String getUsername(UUID userUuid);
 	int getContactRequestStatus(UUID userUuid1, UUID userUuid2);
 	boolean checkContactRequestExists(UUID uuid1, UUID uuid2);
-	// boolean checkContactExists(UUID uuid1, UUID uuid2);
+	boolean checkContactExists(UUID uuid1, UUID uuid2);
 
 }
