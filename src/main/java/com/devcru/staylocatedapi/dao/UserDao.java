@@ -1,7 +1,9 @@
 package com.devcru.staylocatedapi.dao;
 
+import java.util.List;
 import java.util.UUID;
 
+import com.devcru.staylocatedapi.objects.Contact;
 import com.devcru.staylocatedapi.objects.User;
 
 public interface UserDao {
@@ -21,7 +23,7 @@ public interface UserDao {
 	
 	// Contacts-related
 	// GET (self-only, for now)
-	boolean viewContacts(User self);
+	List<Contact> viewContacts(User self);
 	
 	// POST
 	boolean createContactRequest(User user1, User user2);

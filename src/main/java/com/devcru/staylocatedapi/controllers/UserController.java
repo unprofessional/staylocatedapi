@@ -2,6 +2,8 @@ package com.devcru.staylocatedapi.controllers;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.devcru.staylocatedapi.dao.UserDao;
+import com.devcru.staylocatedapi.objects.Contact;
 import com.devcru.staylocatedapi.objects.ContactRequest;
 import com.devcru.staylocatedapi.objects.JsonResponse;
 import com.devcru.staylocatedapi.objects.User;
@@ -101,10 +104,25 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getUserContacts(@PathVariable("uuid") String userUuid) {
-		System.out.println("getUserContacts() -- list of contacts");
+	JsonResponse getUserContacts(@PathVariable("uuid") UUID userUuid) {
+		
 		// get list of user contacts
-		return new JsonResponse("OK", "getUserContacts()");
+		String key = "OK";
+		String message = "";
+		
+		String username = ud.getUsername(userUuid);
+		
+		User self = new User();
+		self.setUsername(username);
+		self.setUuid(userUuid);
+		
+		List<Contact> contacts = ud.viewContacts(self);
+		
+		for(int i = 0; i < contacts.size(); i++) {
+			System.out.println("contactss.get(i): " + contacts.get(i));
+		}
+		
+		return new JsonResponse(key, message);
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
@@ -318,6 +336,8 @@ public class UserController {
         for(URL url: urls){
         	System.out.println(url.getFile());
         }
+        
+      //ud.getUser(user);
 		
 		return "Hello world";
 	}

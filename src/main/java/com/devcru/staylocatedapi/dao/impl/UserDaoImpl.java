@@ -4,7 +4,7 @@ package com.devcru.staylocatedapi.dao.impl;
  * XXX: Theory question(s):
  * Q1) We are assigning single values back to List<String> types on some queries while using String types
  * 		on others -- which is better?
- * A1) List<String> can absorb multiple values, while String can only do so for a single value
+ * A1) List<String> can absorb multiple values, while String can only do so for a single value.
  * 
  * Q2) Should we look into finding a way to return message strings to place into the JsonResponse object?
  * A2) For now, we can put this aside... the boolean isSuccess messages are sufficient enough.  Anything
@@ -12,16 +12,19 @@ package com.devcru.staylocatedapi.dao.impl;
  * 
  * Q3) Should we create our own custom ResultSetExtractor for the number of times we use it?
  * A3) Yes, since ResultSetExtractor is necessary when using the template's query method which is allowed
- * 		to return no results, as opposed to the queryFor* method which MUST return at least one result
+ * 		to return no results, as opposed to the queryFor* method which MUST return at least one result.
  * 
  * Q4) We are enforcing some atomicity logic here (i.e. ensure there are no request relationship duplicates).
  * 		Should we offload this logic to the Controller side?  Does it classify as business logic?
- * A4) My intuition tells me that ensuring atomicity is a data layer concern and, as such, remain in the DAO
+ * A4) My intuition tells me that ensuring atomicity is a data layer concern and, as such, should remain
+ * 		in the DAO.
  */
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -35,6 +38,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.devcru.staylocatedapi.dao.UserDao;
+import com.devcru.staylocatedapi.objects.Contact;
 import com.devcru.staylocatedapi.objects.User;
 
 public class UserDaoImpl implements UserDao {
@@ -138,10 +142,52 @@ public class UserDaoImpl implements UserDao {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean viewContacts(User self) {
-		// TODO Auto-generated method stub
-		return false;
+	public List<Contact> viewContacts(User self) {
+		
+		UUID uuid = self.getUuid();
+		
+		String sql = "SELECT * FROM contacts WHERE requester_id = ?";
+		
+		List<Map<String, Object>> rows = null;
+		
+		try {
+			rows = (List<Map<String, Object>>) template.query(sql,
+					new Object[]{uuid},
+					new ResultSetExtractor<Object>() {
+						@Override
+						public Object extractData(ResultSet rs)
+								throws SQLException, DataAccessException {
+							Map<String, Object> map = new HashMap<String, Object>();
+							while (rs.next()) {
+								String requesterId = rs.getString("requester_id");
+								String accepterId = rs.getString("accepter_id");
+								String timeAdded = rs.getString("time_added");
+								map.put("requester_id", requesterId);
+								map.put("accepterId", accepterId);
+								map.put("time_added", timeAdded);
+							}
+							System.out.println("map: " + map);
+							return map;
+						}
+					}
+			);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		List<Contact> contacts = null;
+		
+		for (Map<String, Object> row : rows) {
+			Contact contact = new Contact();
+			contact.setRequester_id((UUID)row.get("requester_id"));
+			contact.setAccepter_id((UUID)row.get("accepter_id"));
+			contact.setTime_added((String)row.get("time_added"));
+			contacts.add(contact);
+		}
+		
+		return contacts;
 	}
 
 	@Override
@@ -325,7 +371,7 @@ public class UserDaoImpl implements UserDao {
 		String results = null;
 		
 		try {
-			results = (String) template.query(sql, new Object[]{username}, rse);
+			results = template.query(sql, new Object[]{username}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			return false;
@@ -347,7 +393,7 @@ public class UserDaoImpl implements UserDao {
 		String sql = "SELECT uuid FROM users WHERE username = ?";
 		
 		try {
-			uuid = (String) template.query(sql, new Object[]{username}, rse);
+			uuid = template.query(sql, new Object[]{username}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -370,7 +416,7 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("DEBUG: userUuid.toString(): " + userUuid.toString());
 
 		try {
-			username = (String) template.query(sql, new Object[]{userUuid}, rse);
+			username = template.query(sql, new Object[]{userUuid}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -509,7 +555,7 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("DaoImpl: email: " + email);
 		
 		String sql = "";
-		List<String> results = null;
+		List<Map<String, String>> results = null;
 		
 		int field = 0;
 		
@@ -530,12 +576,12 @@ public class UserDaoImpl implements UserDao {
 			return null;
 		}
 		// FIXME: Need to check for null returns
-		results = template.queryForList(sql, new Object[]{(
+		results = template.query(sql, new Object[]{(
 					field == 1 ? uuid :
 						(field == 2 ? username : email)
 					)}, String.class);
 		
-		for(String i : results) {
+		for(Map<String, String> i : results) {
 			// map results to user fields
 		}
 		
