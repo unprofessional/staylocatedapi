@@ -118,13 +118,13 @@ public class UserController {
 		
 		List<Contact> contacts = ud.viewContacts(self);
 		
-		if(!contacts.isEmpty()) {
+		if(null != contacts) {
 			for(int i = 0; i < contacts.size(); i++) {
 				System.out.println("contacts.get(i): " + contacts.get(i));
 			}
 		} else {
 			key = "Error";
-			message = "viewContacts() came back empty";
+			message = "viewContacts() came back null/empty";
 		}
 		
 		return new JsonResponse(key, message);
