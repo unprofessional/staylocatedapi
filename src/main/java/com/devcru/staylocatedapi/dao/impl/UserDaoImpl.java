@@ -545,28 +545,23 @@ public class UserDaoImpl implements UserDao {
 		String username = user.getUsername();
 		UUID uuid = user.getUuid();
 		
-		System.out.println("DaoImpl: uuid: " + uuid);
-		System.out.println("DaoImpl: username: " + username);
-		System.out.println("DaoImpl: email: " + email);
-		
 		String sql = "";
 		List<Map<String, Object>> rows = null;
 		
 		int field = 0;
 		
-		// FIXME: Exclude the password column on all of these
 		if(uuid != null) {
 			field = 1;
 			System.out.println("uuid not null");
-			sql = "SELECT  * FROM users WHERE uuid = ?";
+			sql = "SELECT uuid, username, email, first_name, last_name FROM users WHERE uuid = ?";
 		} else if (!username.equals("") && !username.isEmpty()) {
 			field = 2;
-			System.out.println("username not null");
-			sql = "SELECT * FROM users WHERE username = ?";
+			System.out.println("username not empty");
+			sql = "SELECT uuid, username, email, first_name, last_name FROM users WHERE username = ?";
 		} else if (!email.equals("") && !email.isEmpty()) {
 			field = 3;
-			System.out.println("email not null");
-			sql = "SELECT * FROM users WHERE email = ?";
+			System.out.println("email not empty");
+			sql = "SELECT uuid, username, email, first_name, last_name FROM users WHERE email = ?";
 		} else {
 			System.out.println("No identifying information for the user, returning null...");
 			return null;
