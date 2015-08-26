@@ -1,5 +1,6 @@
 package com.devcru.staylocatedapi.objects;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -8,7 +9,7 @@ public class ContactRequest {
 	private UUID sender_id = null;
 	private UUID recipient_id = null;
 	private int status = -1;
-	private Date time_sent = null;
+	private Timestamp time_sent = null;
 	
 	public UUID getSender_id() {
 		return sender_id;
@@ -28,10 +29,10 @@ public class ContactRequest {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public Date getTime_sent() {
+	public Timestamp getTime_sent() {
 		return time_sent;
 	}
-	public void setTime_sent(Date timestamp) {
+	public void setTime_sent(Timestamp timestamp) {
 		this.time_sent = timestamp;
 	}
 	

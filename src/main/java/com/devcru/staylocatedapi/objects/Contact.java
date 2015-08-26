@@ -1,12 +1,13 @@
 package com.devcru.staylocatedapi.objects;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 public class Contact {
 	
 	UUID requester_id = null;
 	UUID accepter_id = null;
-	String time_added = null; // Change to proper datatype later
+	Timestamp time_added = null; // Change to proper datatype later
 	
 	public UUID getRequester_id() {
 		return requester_id;
@@ -22,10 +23,10 @@ public class Contact {
 		this.accepter_id = accepter_id;
 	}
 	
-	public String getTime_added() {
+	public Timestamp getTime_added() {
 		return time_added;
 	}
-	public void setTime_added(String time_added) {
+	public void setTime_added(Timestamp time_added) {
 		this.time_added = time_added;
 	}
 

@@ -22,6 +22,7 @@ package com.devcru.staylocatedapi.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,7 @@ public class UserDaoImpl implements UserDao {
 			Contact contact = new Contact();
 			contact.setRequester_id((UUID)row.get("requester_id"));
 			contact.setAccepter_id((UUID)row.get("accepter_id"));
-			contact.setTime_added((String)row.get("time_added"));
+			contact.setTime_added((Timestamp)row.get("time_added"));
 			contacts.add(contact);
 		}
 		
