@@ -107,28 +107,30 @@ public class UserController {
 	List<Contact> getUserContacts(@PathVariable("uuid") UUID userUuid) {
 		
 		// get list of user contacts
-		String key = "OK";
-		String message = "";
-		
 		String username = ud.getUsername(userUuid);
 		
-		User self = new User();
-		self.setUsername(username);
-		self.setUuid(userUuid);
+		User user = new User();
+		user.setUsername(username);
+		user.setUuid(userUuid);
 		
-		List<Contact> contacts = ud.viewContacts(self);
+		List<Contact> contacts = null;
 		
-		if(null != contacts) {
-			for(int i = 0; i < contacts.size(); i++) {
-				System.out.println("contacts.get(i): " + contacts.get(i));
+		if(isSelf(user)) {
+		
+			contacts = ud.viewContacts(user);
+			
+			if(null != contacts) {
+				for(int i = 0; i < contacts.size(); i++) {
+					System.out.println("contacts.get(i): " + contacts.get(i));
+				}
+			} else {
+				System.out.println("contacts is null/empty");
 			}
-			message = "contacts found";
+		
 		} else {
-			key = "Error";
-			message = "viewContacts() came back null/empty";
+			System.out.println("User is not self, doing nothing...");
 		}
 		
-		//return new JsonResponse(key, message);
 		return contacts;
 	}
 	
@@ -387,6 +389,16 @@ public class UserController {
 		}
 		
 		return new JsonResponse("OK", message);
+		
+	}
+	
+	@RequestMapping(value = "/testgetuser", method=RequestMethod.POST)
+	public @ResponseBody
+	User testGetUser(@RequestBody User user) {
+		
+		user = ud.getUser(user);
+		
+		return user;
 		
 	}
 	

@@ -537,7 +537,8 @@ public class UserDaoImpl implements UserDao {
 		
 	}
 	
-	/*public User getUser(User user) {
+	@Override
+	public User getUser(User user) {
 		// If we can identify any user information, run a query based on that
 		// and return the entire user data object
 		String email = user.getEmail();
@@ -549,7 +550,7 @@ public class UserDaoImpl implements UserDao {
 		System.out.println("DaoImpl: email: " + email);
 		
 		String sql = "";
-		List<Map<String, String>> results = null;
+		List<Map<String, Object>> rows = null;
 		
 		int field = 0;
 		
@@ -569,17 +570,31 @@ public class UserDaoImpl implements UserDao {
 			System.out.println("No identifying information for the user, returning null...");
 			return null;
 		}
-		// FIXME: Need to check for null returns
-		results = template.query(sql, new Object[]{(
-					field == 1 ? uuid :
-						(field == 2 ? username : email)
-					)}, String.class);
 		
-		for(Map<String, String> i : results) {
-			// map results to user fields
+		try {
+			rows = template.queryForList(sql, new Object[]{(
+						field == 1 ? uuid :
+							(field == 2 ? username : email)
+						)});
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		// Debug
+		for(int i = 0; i < rows.size(); i++) {
+			System.out.println("rows.get(i): " + rows.get(i));
+		}
+		
+		// Shaping it this way in case we want to add multiple users...?
+		for(Map<String, Object> row : rows) {
+			user.setUuid((UUID)row.get("uuid"));
+			user.setUsername((String)row.get("username"));
+			user.setEmail((String)row.get("email"));
+			user.setFirstName((String)(row.get("first_name")));
+			user.setLastName((String)row.get("last_name"));
 		}
 		
 		return user;
-	}*/
+	}
 
 }
