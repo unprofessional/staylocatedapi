@@ -145,7 +145,6 @@ public class UserDaoImpl implements UserDao {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Contact> viewContacts(User self) {
 		
@@ -156,13 +155,12 @@ public class UserDaoImpl implements UserDao {
 		List<Map<String, Object>> rows = null;
 		
 		try {
-			rows = template.queryForList(sql,
-					new Object[]{uuid}
-			);
+			rows = template.queryForList(sql, new Object[]{uuid});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
 		
+		// Debug
 		for(int i = 0; i < rows.size(); i++) {
 			System.out.println("rows.get(i): " + rows.get(i));
 		}
@@ -178,6 +176,7 @@ public class UserDaoImpl implements UserDao {
 			contacts.add(contact);
 		}
 		
+		// Debug
 		for(int i = 0; i < contacts.size(); i++) {
 			System.out.println("contacts.get(i): " + contacts.get(i));
 		}

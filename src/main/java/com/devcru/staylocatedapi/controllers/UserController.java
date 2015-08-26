@@ -104,7 +104,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getUserContacts(@PathVariable("uuid") UUID userUuid) {
+	List<Contact> getUserContacts(@PathVariable("uuid") UUID userUuid) {
 		
 		// get list of user contacts
 		String key = "OK";
@@ -122,12 +122,14 @@ public class UserController {
 			for(int i = 0; i < contacts.size(); i++) {
 				System.out.println("contacts.get(i): " + contacts.get(i));
 			}
+			message = "contacts found";
 		} else {
 			key = "Error";
 			message = "viewContacts() came back null/empty";
 		}
 		
-		return new JsonResponse(key, message);
+		//return new JsonResponse(key, message);
+		return contacts;
 	}
 	
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.POST)
