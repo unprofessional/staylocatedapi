@@ -161,6 +161,10 @@ public class UserDaoImpl implements UserDao {
 			e.printStackTrace();
 		}
 		
+		for(int i = 0; i < rows.size(); i++) {
+			System.out.println("rows.get(i): " + rows.get(i));
+		}
+		
 		List<Contact> contacts = null;
 		
 		for (Map<String, Object> row : rows) {
@@ -169,6 +173,10 @@ public class UserDaoImpl implements UserDao {
 			contact.setAccepter_id((UUID)row.get("accepter_id"));
 			contact.setTime_added((String)row.get("time_added"));
 			contacts.add(contact);
+		}
+		
+		for(int i = 0; i < contacts.size(); i++) {
+			System.out.println("contacts.get(i): " + contacts.get(i));
 		}
 		
 		return contacts;
