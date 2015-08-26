@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -153,25 +154,8 @@ public class UserDaoImpl implements UserDao {
 		List<Map<String, Object>> rows = null;
 		
 		try {
-			rows = (List<Map<String, Object>>) template.query(sql,
-					new Object[]{uuid},
-					new ResultSetExtractor<Object>() {
-						@Override
-						public Object extractData(ResultSet rs)
-								throws SQLException, DataAccessException {
-							Map<String, Object> map = new HashMap<String, Object>();
-							while (rs.next()) {
-								String requesterId = rs.getString("requester_id");
-								String accepterId = rs.getString("accepter_id");
-								String timeAdded = rs.getString("time_added");
-								map.put("requester_id", requesterId);
-								map.put("accepterId", accepterId);
-								map.put("time_added", timeAdded);
-							}
-							System.out.println("map: " + map);
-							return map;
-						}
-					}
+			rows = template.queryForList(sql,
+					new Object[]{uuid}
 			);
 		} catch (DataAccessException e) {
 			e.printStackTrace();

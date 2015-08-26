@@ -119,7 +119,7 @@ public class UserController {
 		List<Contact> contacts = ud.viewContacts(self);
 		
 		for(int i = 0; i < contacts.size(); i++) {
-			System.out.println("contactss.get(i): " + contacts.get(i));
+			System.out.println("contacts.get(i): " + contacts.get(i));
 		}
 		
 		return new JsonResponse(key, message);
