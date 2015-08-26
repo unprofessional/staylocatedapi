@@ -554,15 +554,16 @@ public class UserDaoImpl implements UserDao {
 		
 		int field = 0;
 		
+		// FIXME: Exclude the password column on all of these
 		if(uuid != null) {
 			field = 1;
 			System.out.println("uuid not null");
 			sql = "SELECT  * FROM users WHERE uuid = ?";
-		} else if (username != null && !email.equals("")) {
+		} else if (!username.equals("") && !username.isEmpty()) {
 			field = 2;
 			System.out.println("username not null");
 			sql = "SELECT * FROM users WHERE username = ?";
-		} else if (email != null && !email.equals("")) {
+		} else if (!email.equals("") && !email.isEmpty()) {
 			field = 3;
 			System.out.println("email not null");
 			sql = "SELECT * FROM users WHERE email = ?";
