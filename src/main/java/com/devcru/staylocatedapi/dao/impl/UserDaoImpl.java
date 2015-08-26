@@ -558,11 +558,11 @@ public class UserDaoImpl implements UserDao {
 			field = 1;
 			System.out.println("uuid not null");
 			sql = "SELECT  * FROM users WHERE uuid = ?";
-		} else if (username != null) {
+		} else if (username != null && !email.equals("")) {
 			field = 2;
 			System.out.println("username not null");
 			sql = "SELECT * FROM users WHERE username = ?";
-		} else if (email != null) {
+		} else if (email != null && !email.equals("")) {
 			field = 3;
 			System.out.println("email not null");
 			sql = "SELECT * FROM users WHERE email = ?";

@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public class User {
 	
+	// FIXME: The current user in the DB either needs to be updated to reflect this,
+	// or this needs to reflet what's in the DB.
 	private UUID uuid = null;
 	private String username = "";
 	private String password = "";
