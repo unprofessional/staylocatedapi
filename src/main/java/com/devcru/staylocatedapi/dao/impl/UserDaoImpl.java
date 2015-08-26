@@ -592,6 +592,7 @@ public class UserDaoImpl implements UserDao {
 			user.setEmail((String)row.get("email"));
 			user.setFirstName((String)(row.get("first_name")));
 			user.setLastName((String)row.get("last_name"));
+			user.setPassword(null); // Never show this
 		}
 		
 		return user;
