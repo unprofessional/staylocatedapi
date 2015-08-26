@@ -3,7 +3,6 @@ package com.devcru.staylocatedapi.controllers;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -71,10 +70,21 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getAccountDetails(@PathVariable("uuid") String userUuid) {
-		System.out.println("getAccountDetails()");
-		// get user account details
-		return new JsonResponse("OK", "getAccountDetails()");
+	User getAccountDetails(@PathVariable("uuid") UUID userUuid) {
+		
+		User user = new User();
+		String username = ud.getUsername(userUuid);
+		user.setUuid(userUuid);
+		user.setUsername(username);
+		
+		if(isSelf(user)) {
+			user = ud.getUser(user);
+		} else { // Make room for non-self views?
+			System.out.println("User is not self");
+			return null;
+		}
+		
+		return user;
 	}
 	
 	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)

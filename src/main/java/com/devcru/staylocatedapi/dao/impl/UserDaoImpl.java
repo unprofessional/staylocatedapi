@@ -581,14 +581,14 @@ public class UserDaoImpl implements UserDao {
 			System.out.println("rows.get(i): " + rows.get(i));
 		}
 		
-		// Shaping it this way in case we want to add multiple users...?
+		// Shaping it this way in case we want to add multiple users...
 		for(Map<String, Object> row : rows) {
 			user.setUuid((UUID)row.get("uuid"));
 			user.setUsername((String)row.get("username"));
 			user.setEmail((String)row.get("email"));
 			user.setFirstName((String)(row.get("first_name")));
 			user.setLastName((String)row.get("last_name"));
-			user.setPassword(null); // Never show this
+			user.setPassword(null);
 		}
 		
 		return user;
