@@ -27,6 +27,7 @@ import com.devcru.staylocatedapi.objects.ContactRequest;
 import com.devcru.staylocatedapi.objects.JsonResponse;
 import com.devcru.staylocatedapi.objects.Profile;
 import com.devcru.staylocatedapi.objects.User;
+import com.devcru.staylocatedapi.objects.UserProfileWrapper;
 
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
@@ -57,7 +58,14 @@ public class UserController {
 	@RequestMapping(value="/", method=RequestMethod.POST)
 	// FIXME: headers="content-type=application/json" or produces="application/json"
 	public @ResponseBody
-	JsonResponse registerUser(@RequestBody User user, @RequestBody Profile profile) {
+	JsonResponse registerUser(@RequestBody UserProfileWrapper requestWrapper) {
+		
+		User user = new User();
+		user = requestWrapper.getUser();
+		
+		Profile profile = new Profile();
+		profile = requestWrapper.getProfile();
+		
 		String message = "";
 		
 		if(ud.createUser(user)) {
