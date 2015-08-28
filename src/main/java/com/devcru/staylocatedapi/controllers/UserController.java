@@ -25,6 +25,7 @@ import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.Contact;
 import com.devcru.staylocatedapi.objects.ContactRequest;
 import com.devcru.staylocatedapi.objects.JsonResponse;
+import com.devcru.staylocatedapi.objects.Profile;
 import com.devcru.staylocatedapi.objects.User;
 
 @Controller
@@ -43,24 +44,40 @@ public class UserController {
 	@Qualifier("dataSource")
 	public void setDataSource(DataSource ds) { this.template = new JdbcTemplate(ds); }
 	
+	/*
+	 * Users endpoints
+	 */
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getListOfUsers() {
-		System.out.println("getListOfUsers()");
-		// get list of users... what should we return?  Entire user objects?
+		// ADMIN ONLY
 		return new JsonResponse("OK", "getListOfUsers()");
 	}
 	
 	@RequestMapping(value="/", method=RequestMethod.POST)
 	// FIXME: headers="content-type=application/json" or produces="application/json"
 	public @ResponseBody
-	JsonResponse registerUser(@RequestBody User user) {
+	JsonResponse registerUser(@RequestBody User user, @RequestBody Profile profile) {
 		String message = "";
 		
-		if(ud.insertUser(user)) {
+		if(ud.createUser(user)) {
 			message = "Account created!";
 		} else {
 			message = "Account could not be created!";
+		}
+		
+		// Q: Cascade with account creation SQL in DaoImpl?
+		// A: For now, what we're doing makes more sense unless we capture the extraneous fields
+		// using simple Strings and the like, which would look silly in my opinion
+		// i.e. the method signature would be createUser(user, firstName, lastName, etc)
+		
+		UUID userUuid = user.getUuid();
+		profile.setUser_id(userUuid);
+		
+		if(ud.createProfile(profile)) {
+			message += " Profile created!";
+		} else {
+			message += " Profile creation failed!";
 		}
 		
 		System.out.println("message: " + message);
@@ -95,6 +112,9 @@ public class UserController {
 		return new JsonResponse("OK", "deleteUser()");
 	}
 	
+	/*
+	 * Profile endpoints
+	 */
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserProfile(@PathVariable("uuid") String userUuid) {
@@ -112,6 +132,9 @@ public class UserController {
 		return new JsonResponse("OK", "updateUserProfile()");
 	}
 	
+	/*
+	 * Contacts endpoints
+	 */
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
 	List<Contact> getUserContacts(@PathVariable("uuid") UUID userUuid) {
@@ -321,7 +344,9 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	// ???: Is this method necessary with exclusive OAuth2?
+	/*
+	 * Misc other endpoints (test and diagnostics)
+	 */
 	@RequestMapping(value = "/credentials", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse verifyCredentials(@RequestBody User user) {
@@ -339,7 +364,6 @@ public class UserController {
 		return new JsonResponse("OK", message);
 	}
 	
-	// Test if URL context is set up properly
 	@RequestMapping(value = "/examples")
 	public @ResponseBody
 	String testGet() {
@@ -362,8 +386,7 @@ public class UserController {
 	}
 	
 	/* 
-	 * Helper methods (Move to Utils?)
-	 * Would this be safer to pass in a String username instead?
+	 * Helper methods (Utils?)
 	 */
 	public boolean isSelf(User user) {
 		

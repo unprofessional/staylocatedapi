@@ -24,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,12 +35,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.Contact;
+import com.devcru.staylocatedapi.objects.Profile;
 import com.devcru.staylocatedapi.objects.User;
 
 public class UserDaoImpl implements UserDao {
@@ -62,7 +61,7 @@ public class UserDaoImpl implements UserDao {
 	};
 
 	@Override
-	public boolean insertUser(User user) {
+	public boolean createUser(User user) {
 		
 		boolean isSuccess = false;
 		
@@ -592,6 +591,62 @@ public class UserDaoImpl implements UserDao {
 		}
 		
 		return user;
+	}
+	
+	@Override
+	public boolean createProfile(Profile profile) {
+		
+		boolean isSuccess = false;
+		
+		UUID userUuid = profile.getUser_id();
+		String firstName = profile.getFirst_name();
+		String lastName = profile.getLast_name();
+		String description = profile.getDescription();
+		
+		String sql = "INSERT INTO profiles (user_id, first_name, last_name, description)"
+				+ "VALUES (?, ?, ?, ?)";
+		
+		template.update(sql, new Object[]{userUuid, firstName, lastName, description});
+		
+		return isSuccess;
+	}
+
+	@Override
+	public boolean getProfile(User user) {
+		
+		boolean isSuccess = false;
+		
+		String sql = "SELECT * FROM profiles WHERE user_id = ?";
+		
+		UUID userUuid = user.getUuid();
+		
+		try {
+			template.query(sql, new Object[]{userUuid}, rse);
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
+		
+		return isSuccess;
+	}
+
+	@Override
+	public boolean updateProfile(Profile profile) {
+		
+		boolean isSuccess = false;
+		
+		UUID userId = profile.getUser_id();
+		String firstName = profile.getFirst_name();
+		String lastName = profile.getLast_name();
+		String description = profile.getDescription();
+		
+		String sql = "UPDATE profiles SET first_name = ?, last_name = ?, description = ?"
+				+ "WHERE user_id = ?";
+		
+		template.update(sql, new Object[]{userId, firstName, lastName, description});
+		
+		return isSuccess;
 	}
 
 }
