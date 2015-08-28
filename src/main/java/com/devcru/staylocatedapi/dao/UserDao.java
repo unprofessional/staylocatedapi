@@ -51,7 +51,7 @@ public interface UserDao {
 	boolean createProfile(Profile profile);
 	
 	// GET
-	boolean getProfile(User user);
+	Profile getProfile(User user);
 	
 	// PUT
 	boolean updateProfile(Profile profile);

@@ -66,6 +66,7 @@ public class UserController {
 		Profile profile = new Profile();
 		profile = requestWrapper.getProfile();
 		
+		String key = "OK";
 		String message = "";
 		
 		if(ud.createUser(user)) {
@@ -86,16 +87,16 @@ public class UserController {
 			if(ud.createProfile(profile)) {
 				message += " Profile created!";
 			} else {
+				key = "Error";
 				message += " Profile creation failed!";
 			}
 			
 		} else {
+			key = "Error";
 			message = "Account could not be created!";
 		}
 		
-		System.out.println("message: " + message);
-		
-		return new JsonResponse("OK", message);
+		return new JsonResponse(key, message);
 	}
 	
 	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
@@ -119,7 +120,7 @@ public class UserController {
 	
 	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
-	JsonResponse deleteUser(@PathVariable("uuid") String userUuid, @RequestBody User user) {
+	JsonResponse deleteUser(@PathVariable("uuid") UUID userUuid, @RequestBody User user) {
 		System.out.println("deleteUser()");
 		// remove user account
 		return new JsonResponse("OK", "deleteUser()");
@@ -130,23 +131,29 @@ public class UserController {
 	 */
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
-	JsonResponse getUserProfile(@PathVariable("uuid") String userUuid) {
+	Profile getUserProfile(@PathVariable("uuid") UUID userUuid) {
 		
-		String key = "";
-		String message = "";
+		// FIXME: Return profile object... not JsonResponse
+		// TODO: ifSelf, show all.  !ifSelf, show limited stuff (future feature)
+		// For now, just show all
 		
+		Profile profile = new Profile();
 		
+		User user = new User();
+		user.setUuid(userUuid);
 		
-		return new JsonResponse(key, message);
+		profile = ud.getProfile(user);
+		
+		return profile;
 	}
 
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse updateUserProfile(@PathVariable("uuid") String userUuid, @RequestBody User user) {
+	JsonResponse updateUserProfile(@PathVariable("uuid") UUID userUuid, @RequestBody User user) {
 		
 		// update user profile (only if self)
 		// XXX: Do we change this to a root of profile for self???
-		String key = "";
+		String key = "OK";
 		String message = "";
 		
 		

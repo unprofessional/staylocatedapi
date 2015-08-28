@@ -627,23 +627,36 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public boolean getProfile(User user) {
+	public Profile getProfile(User user) {
 		
-		boolean isSuccess = false;
+		Profile profile = new Profile();
 		
 		String sql = "SELECT * FROM profiles WHERE user_id = ?";
 		
 		UUID userUuid = user.getUuid();
 		
+		List<Map<String, Object>> rows = null;
+		
 		try {
-			template.query(sql, new Object[]{userUuid}, rse);
-			isSuccess = true;
+			rows = template.queryForList(sql, new Object[]{userUuid});
 		} catch (DataAccessException e) {
 			e.printStackTrace();
-			isSuccess = false;
 		}
 		
-		return isSuccess;
+		// Debug
+		for(int i = 0; i < rows.size(); i++) {
+			System.out.println("rows.get(i): " + rows.get(i));
+		}
+		
+		// Shaping it this way in case we want to add multiple profiles...
+		for(Map<String, Object> row : rows) {
+			profile.setUser_id(userUuid);
+			profile.setFirst_name((String)row.get("first_name"));
+			profile.setLast_name((String)row.get("last_name"));
+			profile.setDescription((String)row.get("description"));
+		}
+		
+		return profile;
 	}
 
 	@Override
