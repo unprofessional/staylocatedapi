@@ -133,9 +133,16 @@ public class UserController {
 	public @ResponseBody
 	Profile getUserProfile(@PathVariable("uuid") UUID userUuid) {
 		
-		// FIXME: Return profile object... not JsonResponse
 		// TODO: ifSelf, show all.  !ifSelf, show limited stuff (future feature)
 		// For now, just show all
+		
+		// User user = new User();
+		// user.setUuid(userUuid);
+		
+		// String username = ud.getUsername(userUuid);
+		// user.setUsername(username);
+		
+		//if(isSelf(user)) { // etc } else { // etc }
 		
 		Profile profile = new Profile();
 		
@@ -149,14 +156,32 @@ public class UserController {
 
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.PUT)
 	public @ResponseBody
-	JsonResponse updateUserProfile(@PathVariable("uuid") UUID userUuid, @RequestBody User user) {
+	JsonResponse updateUserProfile(@PathVariable("uuid") UUID userUuid, @RequestBody Profile profile) {
 		
 		// update user profile (only if self)
 		// XXX: Do we change this to a root of profile for self???
 		String key = "OK";
 		String message = "";
 		
+		User user = new User();
+		user.setUuid(userUuid);
 		
+		String username = ud.getUsername(userUuid);
+		user.setUsername(username);
+		
+		if(isSelf(user)) {
+		
+			if(ud.updateProfile(profile)){
+				message = "Profile update success";
+			} else {
+				key = "Error";
+				message = "Profile update failed";
+			}
+		
+		} else {
+			key = "Error";
+			message = "User is not self, doing nothing...";
+		}
 		
 		return new JsonResponse(key, message);
 	}
