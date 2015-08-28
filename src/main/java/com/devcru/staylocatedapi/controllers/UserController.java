@@ -170,6 +170,8 @@ public class UserController {
 		user.setUsername(username);
 		
 		if(isSelf(user)) {
+			
+			profile.setUser_id(userUuid);
 		
 			if(ud.updateProfile(profile)){
 				message = "Profile update success";
