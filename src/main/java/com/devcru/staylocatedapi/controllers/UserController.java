@@ -118,18 +118,27 @@ public class UserController {
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getUserProfile(@PathVariable("uuid") String userUuid) {
-		System.out.println("getUserProfile()");
-		// get user profile
-		return new JsonResponse("OK", "getUserProfile()");
+		
+		String key = "";
+		String message = "";
+		
+		
+		
+		return new JsonResponse(key, message);
 	}
 
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.PUT)
 	public @ResponseBody
 	JsonResponse updateUserProfile(@PathVariable("uuid") String userUuid, @RequestBody User user) {
-		System.out.println("updateUserProfile()");
+		
 		// update user profile (only if self)
 		// XXX: Do we change this to a root of profile for self???
-		return new JsonResponse("OK", "updateUserProfile()");
+		String key = "";
+		String message = "";
+		
+		
+		
+		return new JsonResponse(key, message);
 	}
 	
 	/*
