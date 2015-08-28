@@ -202,7 +202,7 @@ public class UserController {
 		senderUser.setUsername(senderUsername);
 		
 		String recipientUsername = recipientUser.getUsername();
-		UUID recipientUuid = UUID.fromString(ud.getUuid(recipientUsername));
+		UUID recipientUuid = ud.getUuid(recipientUsername);
 		recipientUser.setUuid(recipientUuid);
 		
 		System.out.println("DEBUG: senderUsername: " + senderUsername);
