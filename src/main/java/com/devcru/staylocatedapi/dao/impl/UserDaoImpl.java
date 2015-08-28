@@ -670,10 +670,10 @@ public class UserDaoImpl implements UserDao {
 		String description = profile.getDescription();
 		
 		String sql = "UPDATE profiles SET first_name = ?, last_name = ?, description = ?"
-				+ "WHERE user_id = ?";
+				+ " WHERE user_id = ?";
 		
 		try {
-			template.update(sql, new Object[]{userId, firstName, lastName, description});
+			template.update(sql, new Object[]{firstName, lastName, description, userId});
 			isSuccess = true;
 		} catch (DataAccessException e) {
 			e.printStackTrace();
