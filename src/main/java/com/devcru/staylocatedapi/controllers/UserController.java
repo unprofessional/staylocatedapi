@@ -82,6 +82,9 @@ public class UserController {
 		UUID userUuid = user.getUuid();
 		profile.setUser_id(userUuid);
 		
+		System.out.println("user.getUuid(): " + userUuid);
+		System.out.println("profile.getUser_id: " + profile.getUser_id());
+		
 		if(ud.createProfile(profile)) {
 			message += " Profile created!";
 		} else {
