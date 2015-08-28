@@ -88,6 +88,10 @@ public class UserDaoImpl implements UserDao {
 			}
 		}
 		
+		if(isSuccess) {
+			// create profile...
+		}
+		
 		System.out.println("message: " + message);
 		
 		return isSuccess;
