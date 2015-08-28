@@ -611,7 +611,13 @@ public class UserDaoImpl implements UserDao {
 		String sql = "INSERT INTO profiles (user_id, first_name, last_name, description)"
 				+ "VALUES (?, ?, ?, ?)";
 		
-		template.update(sql, new Object[]{userUuid, firstName, lastName, description});
+		try {
+			template.update(sql, new Object[]{userUuid, firstName, lastName, description});
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
 		
 		return isSuccess;
 	}
@@ -649,7 +655,13 @@ public class UserDaoImpl implements UserDao {
 		String sql = "UPDATE profiles SET first_name = ?, last_name = ?, description = ?"
 				+ "WHERE user_id = ?";
 		
-		template.update(sql, new Object[]{userId, firstName, lastName, description});
+		try {
+			template.update(sql, new Object[]{userId, firstName, lastName, description});
+			isSuccess = true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			isSuccess = false;
+		}
 		
 		return isSuccess;
 	}
