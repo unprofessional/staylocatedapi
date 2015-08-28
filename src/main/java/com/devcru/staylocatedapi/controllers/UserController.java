@@ -79,7 +79,8 @@ public class UserController {
 		// using simple Strings and the like, which would look silly in my opinion
 		// i.e. the method signature would be createUser(user, firstName, lastName, etc)
 		
-		UUID userUuid = user.getUuid();
+		String username = user.getUsername();
+		UUID userUuid = ud.getUuid(username);
 		profile.setUser_id(userUuid);
 		
 		System.out.println("user.getUuid(): " + userUuid);

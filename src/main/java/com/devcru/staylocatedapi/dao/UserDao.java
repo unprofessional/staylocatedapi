@@ -60,7 +60,7 @@ public interface UserDao {
 	 * SUPPORT HTTP-agnostic methods
 	 */
 	boolean checkUserExists(String username);
-	String getUuid(String username);
+	UUID getUuid(String username);
 	String getUsername(UUID userUuid);
 	int getContactRequestStatus(UUID userUuid1, UUID userUuid2);
 	boolean checkContactRequestExists(UUID uuid1, UUID uuid2);

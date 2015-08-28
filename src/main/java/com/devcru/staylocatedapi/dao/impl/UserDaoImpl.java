@@ -380,20 +380,25 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public String getUuid(String username) {
+	public UUID getUuid(String username) {
 		
-		String uuid = "";
+		String uuidStr = "";
+		UUID uuid = null;
 		String sql = "SELECT uuid FROM users WHERE username = ?";
 		
+		// Because there is no UUID support with ResultSetExtractor....
+		// gotta pull a string and convert it later
 		try {
-			uuid = template.query(sql, new Object[]{username}, rse);
+			uuidStr = template.query(sql, new Object[]{username}, rse);
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
 		
+		uuid = UUID.fromString(uuidStr);
+		
 		System.out.println("getUuid: " + uuid);
 		
-		if(uuid == null || uuid.isEmpty()) {
+		if(uuid == null) {
 			return null;
 		} else {
 			return uuid;
