@@ -57,7 +57,7 @@ public class UserController {
 	}
 	
 	@RequestMapping(value="/", method=RequestMethod.POST,
-			produces="application/json", consumes="application/json")
+			produces="application/xml", consumes="application/json")
 	public @ResponseBody
 	JsonResponse registerUser(@RequestBody UserProfileWrapper requestWrapper) {
 		
