@@ -71,9 +71,9 @@ public class UserDaoImpl implements UserDao {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(password);
 		
-		String message = "", sql = null;
+		String message = "";
 		
-		sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+		String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 		
 		if(checkUserExists(username)) {
 			message = "Username exists! Doing nothing!";

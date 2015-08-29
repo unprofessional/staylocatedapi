@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.Contact;
@@ -55,8 +56,8 @@ public class UserController {
 		return new JsonResponse("OK", "getListOfUsers()");
 	}
 	
-	@RequestMapping(value="/", method=RequestMethod.POST)
-	// FIXME: headers="content-type=application/json" or produces="application/json"
+	@RequestMapping(value="/", method=RequestMethod.POST,
+			produces="application/json", consumes="application/json")
 	public @ResponseBody
 	JsonResponse registerUser(@RequestBody UserProfileWrapper requestWrapper) {
 		
@@ -99,7 +100,10 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
+	// !!! (SATURDAY) TODO !!!: Test with application/xml to see what does what
+	// This will determine if this will be applied to all other endpoints
+	@RequestMapping(value="/{uuid}", method=RequestMethod.GET,
+			produces="application/json", consumes="application/json")
 	public @ResponseBody
 	User getAccountDetails(@PathVariable("uuid") UUID userUuid) {
 		
@@ -121,9 +125,20 @@ public class UserController {
 	@RequestMapping(value="/{uuid}", method=RequestMethod.DELETE)
 	public @ResponseBody
 	JsonResponse deleteUser(@PathVariable("uuid") UUID userUuid, @RequestBody User user) {
-		System.out.println("deleteUser()");
-		// remove user account
-		return new JsonResponse("OK", "deleteUser()");
+		
+		String key = "OK";
+		String message = "";
+		
+		user.setUuid(userUuid);
+		
+		if(ud.deleteUser(user)) {
+			message = "User delete success!";
+		} else {
+			key = "Error";
+			message = "User delete failed!";
+		}
+		
+		return new JsonResponse(key, message);
 	}
 	
 	/*
@@ -159,7 +174,6 @@ public class UserController {
 	JsonResponse updateUserProfile(@PathVariable("uuid") UUID userUuid, @RequestBody Profile profile) {
 		
 		// update user profile (only if self)
-		// XXX: Do we change this to a root of profile for self???
 		String key = "OK";
 		String message = "";
 		
@@ -272,7 +286,6 @@ public class UserController {
 		if(isSelf(senderUser)) {
 			key = "ContactRequestStatus";
 			message = "" + ud.getContactRequestStatus(userUuid1, userUuid2);
-			// FIXME: I don't like converting to a String, would prefer data-type consistency
 		} else {
 			key = "Error";
 			message = "Accessor is not self, doing nothing";
