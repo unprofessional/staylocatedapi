@@ -56,7 +56,7 @@ public class UserController {
 		return new JsonResponse("OK", "getListOfUsers()");
 	}
 	
-	@RequestMapping(value="/", method=RequestMethod.POST, headers="Accept=application/xml",
+	@RequestMapping(value="/", method=RequestMethod.POST,
 			consumes="application/xml", produces="application/xml")
 	public @ResponseBody
 	JsonResponse registerUser(@RequestBody UserProfileWrapper requestWrapper) {
