@@ -32,8 +32,7 @@ import com.devcru.staylocatedapi.objects.UserProfileWrapper;
 
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
-@RequestMapping(value = "/users/*",
-	produces="application/json", consumes="application/json")
+@RequestMapping(value = "/users/*")
 public class UserController {
 	
 	UserDao ud;
@@ -57,7 +56,8 @@ public class UserController {
 		return new JsonResponse("OK", "getListOfUsers()");
 	}
 	
-	@RequestMapping(value="/", method=RequestMethod.POST)
+	@RequestMapping(value="/", method=RequestMethod.POST, headers="Accept=application/xml",
+			consumes="application/xml", produces="application/xml")
 	public @ResponseBody
 	JsonResponse registerUser(@RequestBody UserProfileWrapper requestWrapper) {
 		
