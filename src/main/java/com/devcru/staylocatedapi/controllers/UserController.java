@@ -73,10 +73,7 @@ public class UserController {
 		if(ud.createUser(user)) {
 			message = "Account created!";
 			
-			// Q: Cascade with account creation SQL in DaoImpl?
-			// A: For now, what we're doing makes more sense unless we capture the extraneous fields
-			// using simple Strings and the like, which would look silly in my opinion
-			// i.e. the method signature would be createUser(user, firstName, lastName, etc)
+			// TODO: Cascade from account creation to profile creation via SQL
 			
 			String username = user.getUsername();
 			UUID userUuid = ud.getUuid(username);
