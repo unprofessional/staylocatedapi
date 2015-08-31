@@ -17,7 +17,7 @@ package com.devcru.staylocatedapi.dao.impl;
  * Q4) We are enforcing some atomicity logic here (i.e. ensure there are no request relationship duplicates).
  * 		Should we offload this logic to the Controller side?  Does it classify as business logic?
  * A4) My intuition tells me that ensuring atomicity is a data layer concern and, as such, should remain
- * 		in the DAO.
+ * 		in the DAO.  Consulted with senior colleague who agrees.
  */
 
 import java.sql.ResultSet;
@@ -86,10 +86,16 @@ public class UserDaoImpl implements UserDao {
 				e.printStackTrace();
 				isSuccess = false;
 			}
-		}
-		
-		if(isSuccess) {
-			// create profile...
+			
+			// If all goes well, create profile
+//			if(isSuccess) {
+//				try{
+//					isSuccess = createProfile(profile);
+//				} catch (DataAccessException e) {
+//					e.printStackTrace();
+//					isSuccess = false;
+//				}
+//			}
 		}
 		
 		System.out.println("message: " + message);
@@ -228,7 +234,7 @@ public class UserDaoImpl implements UserDao {
 			}
 		
 		} else {
-			System.out.println("The request already exists, doing nothing...");
+			System.out.println("DaoImpl: Contact request already exists, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -250,7 +256,7 @@ public class UserDaoImpl implements UserDao {
 		
 		String sql = "UPDATE contact_requests SET status = ? WHERE sender_id = ? AND recipient_id = ?";
 		
-		if(sender != null && recipient != null) {
+		if(checkContactRequestExists(senderUuid, recipientUuid)) {
 			try {
 				template.update(sql, new Object[]{status, senderUuid, recipientUuid});
 				isSuccess = true;
@@ -259,7 +265,7 @@ public class UserDaoImpl implements UserDao {
 				isSuccess = false;
 			}
 		} else {
-			System.out.println("DaoImpl: sender or recipient are NULL, doing nothing");
+			System.out.println("DaoImpl: Contact request does not exist, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -302,7 +308,7 @@ public class UserDaoImpl implements UserDao {
 			}
 		
 		} else {
-			System.out.println("The contact relationship already exists, doing nothing...");
+			System.out.println("DaoImpl: Contact relationship already exists, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -321,16 +327,20 @@ public class UserDaoImpl implements UserDao {
 		// First check if request exists (should always if contact exists) and delete it if so
 		// if request deleted, then delete contact relationship as well
 		// else do nothing if no request exists
-		if(deleteContactRequest(requester, accepter)) {
-			try {
-				template.update(sql, new Object[]{requesterUuid, accepterUuid});
-				isSuccess = true;
-			} catch (DataAccessException e) {
-				e.printStackTrace();
+		if(checkContactExists(requesterUuid, requesterUuid)) {
+			if(deleteContactRequest(requester, accepter)) {
+				try {
+					template.update(sql, new Object[]{requesterUuid, accepterUuid});
+					isSuccess = true;
+				} catch (DataAccessException e) {
+					e.printStackTrace();
+					isSuccess = false;
+				}
+			} else {
 				isSuccess = false;
 			}
 		} else {
-			isSuccess = false;
+			System.out.println("DaoImpl: Contact relationship does not exist, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -346,12 +356,16 @@ public class UserDaoImpl implements UserDao {
 		
 		String sql = "DELETE FROM contact_requests WHERE sender_id = ? AND recipient_id = ?";
 		
-		try {
-			template.update(sql, new Object[]{senderUuid, recipientUuid});
-			isSuccess = true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
-			isSuccess = false;
+		if(checkContactRequestExists(senderUuid, recipientUuid)) {
+			try {
+				template.update(sql, new Object[]{senderUuid, recipientUuid});
+				isSuccess = true;
+			} catch (DataAccessException e) {
+				e.printStackTrace();
+				isSuccess = false;
+			}
+		} else {
+			System.out.println("DaoImpl: Contact Request does not exist, doing nothing...");
 		}
 		
 		return isSuccess;
@@ -360,7 +374,6 @@ public class UserDaoImpl implements UserDao {
 	/*
 	 * DAO Support query-methods
 	 */
-	
 	@Override
 	public boolean checkUserExists(String username) {
 		
@@ -669,15 +682,21 @@ public class UserDaoImpl implements UserDao {
 		String lastName = profile.getLast_name();
 		String description = profile.getDescription();
 		
+		String username = getUsername(userId);
+		
 		String sql = "UPDATE profiles SET first_name = ?, last_name = ?, description = ?"
 				+ " WHERE user_id = ?";
 		
-		try {
-			template.update(sql, new Object[]{firstName, lastName, description, userId});
-			isSuccess = true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
-			isSuccess = false;
+		if(checkUserExists(username)) {
+			try {
+				template.update(sql, new Object[]{firstName, lastName, description, userId});
+				isSuccess = true;
+			} catch (DataAccessException e) {
+				e.printStackTrace();
+				isSuccess = false;
+			}
+		} else {
+			System.out.println("DaoImpl: User does not exist, doing nothing...");
 		}
 		
 		return isSuccess;

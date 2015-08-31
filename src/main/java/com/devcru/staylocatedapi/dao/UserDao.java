@@ -9,9 +9,9 @@ import com.devcru.staylocatedapi.objects.User;
 
 public interface UserDao {
 
-	/*
-	 * User-related
-	 */
+/*
+ * User-related
+ */
 	// GET (admin-only)
 	//boolean getUsers();
 	
@@ -24,9 +24,9 @@ public interface UserDao {
 	// DELETE
 	boolean deleteUser(User user);
 	
-	/*
-	 * Contacts-related
-	 */
+/*
+ * Contacts-related
+ */
 	// GET (self-only, for now)
 	List<Contact> viewContacts(User self);
 	
@@ -44,9 +44,9 @@ public interface UserDao {
 	// POST
 	boolean verifyUserCreds(User user);
 	
-	/*
-	 * Profile-related
-	 */
+/*
+ * Profile-related
+ */
 	// POST (created when a user is created)
 	boolean createProfile(Profile profile);
 	
@@ -56,9 +56,9 @@ public interface UserDao {
 	// PUT
 	boolean updateProfile(Profile profile);
 	
-	/*
-	 * SUPPORT HTTP-agnostic methods
-	 */
+/*
+ * SUPPORT HTTP-agnostic methods
+ */
 	boolean checkUserExists(String username);
 	UUID getUuid(String username);
 	String getUsername(UUID userUuid);

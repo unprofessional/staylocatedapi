@@ -46,12 +46,13 @@ public class UserController {
 	@Qualifier("dataSource")
 	public void setDataSource(DataSource ds) { this.template = new JdbcTemplate(ds); }
 	
-	/*
-	 * Users endpoints
-	 */
+/*
+ * Users endpoints
+ */
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public @ResponseBody
 	JsonResponse getListOfUsers() {
+		// TODO
 		// ADMIN ONLY
 		return new JsonResponse("OK", "getListOfUsers()");
 	}
@@ -99,8 +100,6 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	// !!! (SATURDAY) TODO !!!: Test with application/xml to see what does what
-	// This will determine if this will be applied to all other endpoints
 	@RequestMapping(value="/{uuid}", method=RequestMethod.GET)
 	public @ResponseBody
 	User getAccountDetails(@PathVariable("uuid") UUID userUuid) {
@@ -139,9 +138,9 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	/*
-	 * Profile endpoints
-	 */
+/*
+ * Profile endpoints
+ */
 	@RequestMapping(value="/{uuid}/profile", method=RequestMethod.GET)
 	public @ResponseBody
 	Profile getUserProfile(@PathVariable("uuid") UUID userUuid) {
@@ -200,14 +199,14 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	/*
-	 * Contacts endpoints
-	 */
+/*
+ * Contacts endpoints
+ */
 	@RequestMapping(value="/{uuid}/contacts", method=RequestMethod.GET)
 	public @ResponseBody
 	List<Contact> getUserContacts(@PathVariable("uuid") UUID userUuid) {
 		
-		// get list of user contacts
+		// get list of user contacts (only if self)
 		String username = ud.getUsername(userUuid);
 		
 		User user = new User();
@@ -411,9 +410,9 @@ public class UserController {
 		return new JsonResponse(key, message);
 	}
 	
-	/*
-	 * Misc other endpoints (test and diagnostics)
-	 */
+/*
+ * Misc other endpoints (test and diagnostics)
+ */
 	@RequestMapping(value = "/credentials", method=RequestMethod.POST)
 	public @ResponseBody
 	JsonResponse verifyCredentials(@RequestBody User user) {
@@ -446,15 +445,13 @@ public class UserController {
         for(URL url: urls){
         	System.out.println(url.getFile());
         }
-        
-      //ud.getUser(user);
 		
 		return "Hello world";
 	}
 	
-	/* 
-	 * Helper methods (Utils?)
-	 */
+/* 
+ * Helper methods (Utils?)
+ */
 	public boolean isSelf(User user) {
 		
 		System.out.println("DEBUG: user.getUsername(): " + user.getUsername());
@@ -462,10 +459,16 @@ public class UserController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
 		String authName = authentication.getName();
+		UUID userUuid = user.getUuid();
 		String username = user.getUsername();
 		
 		System.out.println("authName: " + authName);
 		System.out.println("username: " + username);
+		System.out.println("userUuid: " + userUuid);
+		
+		if(username.equals("") || username.isEmpty()) {
+			username = ud.getUsername(userUuid);
+		}
 		
 		if(username.equals(authName)) {
 			System.out.println("authName and username match!");
