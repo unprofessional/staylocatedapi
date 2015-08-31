@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.devcru.staylocatedapi.dao.UserDao;
 import com.devcru.staylocatedapi.objects.Contact;
@@ -33,6 +32,7 @@ import com.devcru.staylocatedapi.objects.UserProfileWrapper;
 @Controller
 //@JsonIgnoreProperties(ignoreUnknown = true) // Doesn't seem to be necessary, but leaving in for now
 @RequestMapping(value = "/users/*")
+	//consumes="application/json", produces="application/json") // Apparently, not necessary also...?
 public class UserController {
 	
 	UserDao ud;
