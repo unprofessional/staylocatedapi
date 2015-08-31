@@ -94,7 +94,6 @@ CREATE TABLE users
   uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
   username character varying(16) NOT NULL,
   email character varying(64),
-  title character varying(64),
   user_role character varying(16) NOT NULL DEFAULT 'ROLE_USER'::character varying,
   password character varying(64) NOT NULL,
   CONSTRAINT users_pkey PRIMARY KEY (uuid)
@@ -129,6 +128,22 @@ CREATE TABLE contact_requests
   status integer NOT NULL DEFAULT 0, -- 0 - Pending...
   time_sent timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT contact_requests_pkey PRIMARY KEY (recipient_id, sender_id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+-- Table: profiles
+
+-- DROP TABLE profiles;
+
+CREATE TABLE profiles
+(
+  user_id uuid NOT NULL,
+  first_name character varying(64),
+  last_name character varying(64),
+  description character varying(512),
+  CONSTRAINT profile_pkey PRIMARY KEY (user_id)
 )
 WITH (
   OIDS=FALSE
