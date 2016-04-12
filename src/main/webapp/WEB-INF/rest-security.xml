@@ -37,7 +37,7 @@
 	      access-decision-manager-ref="accessDecisionManager"
 	      xmlns="http://www.springframework.org/schema/security">
 	    <anonymous enabled="false"/>
-	    <intercept-url pattern="/users/**" access="ROLE_USER"/>
+	    <intercept-url pattern="/users/**" access="ROLE_USER2"/>
 	    <custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER"/>
 	    <access-denied-handler ref="oauthAccessDeniedHandler"/>
 	</http>
